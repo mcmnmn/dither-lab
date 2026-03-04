@@ -1,0 +1,27 @@
+project:
+  name: "dither-lab"
+  language: "TypeScript"
+  framework: "React"
+
+commands:
+  build: "npm run build"
+  dev: "npm run dev"
+
+rules:
+  - "Use React 18 with TypeScript and Tailwind CSS v4"
+  - "All image processing must happen client-side using Canvas API"
+  - "Use CSS custom properties (--color-*) for theming, not Tailwind dark: variants"
+  - "Error-diffusion algorithms share a common loop in src/algorithms/error-diffusion/common.ts — only define kernels in algorithm files"
+  - "State management uses useReducer + Context in src/state/ — no external state libraries"
+  - "Always use the grouped algorithm registry in src/algorithms/index.ts to register new algorithms"
+  - "Palette presets go in src/palette/presets.ts"
+  - "Debounce preview updates at 100ms for expensive operations"
+  - "Use downscaled preview (max 1024px) for real-time interaction, full-res only on export"
+  - "localStorage persistence via src/hooks/use-persistence.ts — add new persisted fields there"
+  - "Export file naming convention: {original_name}_{algorithm}_{colorcount}.{format}"
+
+boundaries:
+  never_touch:
+    - "*.lock"
+    - "node_modules/**"
+    - "dist/**"
