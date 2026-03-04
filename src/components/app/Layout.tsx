@@ -18,11 +18,12 @@ const THEME_LABELS: Record<ThemeId, string> = {
   cassette: 'Cassette',
 };
 
+const base = import.meta.env.BASE_URL;
 const THEME_LOGOS: Record<ThemeId, string> = {
-  butterlite: '/givebutter-logo.svg',
-  noir: '/givebutter-logo-noir.svg',
-  vt320: '/givebutter-logo-vt320.svg',
-  cassette: '/givebutter-logo-cassette.svg',
+  butterlite: `${base}givebutter-logo.svg`,
+  noir: `${base}givebutter-logo-noir.svg`,
+  vt320: `${base}givebutter-logo-vt320.svg`,
+  cassette: `${base}givebutter-logo-cassette.svg`,
 };
 
 export function Layout() {
