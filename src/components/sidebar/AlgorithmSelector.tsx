@@ -68,21 +68,23 @@ export function AlgorithmSelector() {
       <span className="retro-section-label">Dithering</span>
       <div className="space-y-3">
         {/* Dithering Type */}
-        <div>
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-(--color-text-secondary)">
-            Type
-          </span>
-          <select
-            value={activeType}
-            onChange={e => handleTypeChange(e.target.value as DitherType)}
-            className="w-full border border-(--color-border) bg-(--color-bg) px-2 py-1.5 text-xs text-(--color-text) focus:outline-1 focus:outline-(--color-accent)"
-          >
-            {DITHER_TYPES.map(t => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+        <div
+          className="grid grid-cols-2 border border-(--color-border)"
+          style={{ gap: '1px', backgroundColor: 'var(--color-border)' }}
+        >
+          {DITHER_TYPES.map(t => (
+            <button
+              key={t.id}
+              onClick={() => handleTypeChange(t.id)}
+              className={`px-2 py-1.5 text-xs text-left transition-colors ${
+                activeType === t.id
+                  ? 'bg-(--color-accent) text-(--color-accent-text)'
+                  : 'bg-(--color-bg) text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         {/* Diffusion Map (Error Diffusion only) */}

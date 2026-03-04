@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/dither-lab/',
+  base: process.env.GITHUB_ACTIONS ? '/dither-lab/' : '/',
   plugins: [react(), tailwindcss()],
 })
