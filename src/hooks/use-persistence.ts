@@ -5,7 +5,7 @@ import type { ThemeId, ToolId, CropAspectRatio } from '../state/types';
 const STORAGE_KEY = 'dither-lab-settings';
 
 const VALID_THEMES: ThemeId[] = ['butterlite', 'noir', 'vt320', 'cassette'];
-const VALID_TOOLS: ToolId[] = ['dither', 'grain', 'gradient'];
+const VALID_TOOLS: ToolId[] = ['dither', 'ascii', 'halftone', 'noise-field', 'pixel-sort', 'crosshatch', 'vhs', 'matrix-rain'];
 
 interface PersistedSettings {
   algorithmId: string;
@@ -46,10 +46,11 @@ export function usePersistence() {
           theme = parsed.theme as ThemeId;
         }
 
-        // Validate activeTool
+        // Validate activeTool (migrate legacy 'grain' → 'ascii')
         let activeTool: ToolId = 'dither';
-        if (parsed.activeTool && VALID_TOOLS.includes(parsed.activeTool as ToolId)) {
-          activeTool = parsed.activeTool as ToolId;
+        const rawTool = parsed.activeTool === 'grain' ? 'ascii' : parsed.activeTool;
+        if (rawTool && VALID_TOOLS.includes(rawTool as ToolId)) {
+          activeTool = rawTool as ToolId;
         }
 
         dispatch({

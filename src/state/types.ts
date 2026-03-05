@@ -5,7 +5,7 @@ export type ComparisonMode = 'slider' | 'side-by-side' | 'toggle';
 export type AppMode = 'single' | 'batch';
 export type ExportFormat = 'png' | 'jpg' | 'gif' | 'webp';
 export type ThemeId = 'butterlite' | 'noir' | 'vt320' | 'cassette';
-export type ToolId = 'dither' | 'grain' | 'gradient';
+export type ToolId = 'dither' | 'ascii' | 'halftone' | 'noise-field' | 'pixel-sort' | 'crosshatch' | 'vhs' | 'matrix-rain';
 export type SourceMediaType = 'image' | 'video' | 'glb';
 export type CropAspectRatio = 'original' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
 

@@ -1,26 +1,33 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { GrainCanvas } from './GrainCanvas';
-import { GrainLeftSidebar } from './GrainLeftSidebar';
 import { GrainRightSidebar } from './GrainRightSidebar';
 import { useGrainPersistence } from '../hooks/use-grain-persistence';
 import { useGrainState, useGrainDispatch } from '../state/grain-context';
 import { useAppState } from '../../state/app-context';
-import { EFFECTS, EffectSettings } from './effects';
+import { EffectSettings } from './effects';
 import { useGrainExport } from '../hooks/use-grain-export';
 import { ProcessingPanel } from './panels/ProcessingPanel';
 import { PostProcessingPanel } from './panels/PostProcessingPanel';
 import { ExportPanel } from './panels/ExportPanel';
+import type { GrainEffectId } from '../state/types';
 
 interface GrainAppProps {
+  effectId: GrainEffectId;
   isNarrow: boolean;
   sidebarOpen: boolean;
   onCloseSidebar: () => void;
   toolSwitcher: React.ReactNode;
 }
 
-export function GrainApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: GrainAppProps) {
+export function GrainApp({ effectId, isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: GrainAppProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const grainDispatch = useGrainDispatch();
   useGrainPersistence();
+
+  // Sync activeEffect from tab selection
+  useEffect(() => {
+    grainDispatch({ type: 'GRAIN_SET_EFFECT', effect: effectId });
+  }, [effectId, grainDispatch]);
 
   if (isNarrow) {
     return (
@@ -35,11 +42,10 @@ export function GrainApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <GrainLeftSidebar />
+      <GrainRightSidebar canvasRef={canvasRef} />
       <main className="flex-1 overflow-hidden">
         <GrainCanvas canvasRef={canvasRef} />
       </main>
-      <GrainRightSidebar canvasRef={canvasRef} />
     </div>
   );
 }
@@ -57,7 +63,6 @@ function GrainNarrowLayout({
 }) {
   const { activeEffect } = useGrainState();
   const { sourceImage } = useAppState();
-  const dispatch = useGrainDispatch();
   const { exportFormat, setFormat, download } = useGrainExport(canvasRef);
 
   return (
@@ -79,28 +84,6 @@ function GrainNarrowLayout({
             </div>
             {toolSwitcher}
             <div className="flex flex-col gap-4 p-4">
-              {/* Effects list */}
-              <section>
-                <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary)">
-                  Effects
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  {EFFECTS.map(effect => (
-                    <button
-                      key={effect.id}
-                      onClick={() => dispatch({ type: 'GRAIN_SET_EFFECT', effect: effect.id })}
-                      className={`px-2 py-1.5 text-left text-xs font-medium transition-colors ${
-                        activeEffect === effect.id
-                          ? 'bg-(--color-accent) text-(--color-accent-text)'
-                          : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
-                      }`}
-                    >
-                      {effect.label}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
               {/* Per-effect settings */}
               <section>
                 <EffectSettings effect={activeEffect} />

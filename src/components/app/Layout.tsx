@@ -3,13 +3,12 @@ import { useAppState, useAppDispatch } from '../../state/app-context';
 import { Sidebar } from '../sidebar/Sidebar';
 import { PreviewCanvas } from '../canvas/PreviewCanvas';
 import { BatchPanel } from '../batch/BatchPanel';
-import { ToolPlaceholder } from './ToolPlaceholder';
 import { GrainProvider } from '../../grain/state/grain-context';
 import { GrainApp } from '../../grain/components/GrainApp';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile, MEDIA_ACCEPT } from '../../utils/media-io';
 import type { ThemeId } from '../../state/types';
-import { TOOLS, getToolById } from '../../state/tools';
+import { TOOLS, getToolById, isEffectTool, toGrainEffectId } from '../../state/tools';
 
 const THEME_ORDER: ThemeId[] = ['butterlite', 'noir', 'vt320', 'cassette'];
 const THEME_LABELS: Record<ThemeId, string> = {
@@ -71,6 +70,21 @@ export function Layout() {
     e.target.value = '';
   }, [dispatch]);
 
+  const isEffect = isEffectTool(activeTool);
+
+  const toolSwitcher = (
+    <div className="border-b border-(--color-border) px-4 py-2">
+      <span className="mb-1 block text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Tools</span>
+      <div className="flex flex-wrap gap-1">
+        {TOOLS.map(tool => (
+          <button key={tool.id} onClick={() => { dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id }); setSidebarOpen(false); }} className={`px-2 py-1 text-xs font-medium uppercase transition-colors ${activeTool === tool.id ? 'bg-(--color-accent) text-(--color-accent-text)' : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'}`}>
+            {tool.shortLabel}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex h-full flex-col">
       {/* Hidden file input for Replace */}
@@ -84,11 +98,11 @@ export function Layout() {
 
       {/* Header */}
       <header className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-secondary) px-4 py-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           {isNarrow && (
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="border border-(--color-border) p-1.5 text-(--color-text-secondary) hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
+              className="flex-shrink-0 border border-(--color-border) p-1.5 text-(--color-text-secondary) hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
               aria-label="Toggle sidebar"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -98,14 +112,14 @@ export function Layout() {
               </svg>
             </button>
           )}
-          <img src={THEME_LOGOS[theme]} alt="Givebutter" width="20" height="20" />
+          <img src={THEME_LOGOS[theme]} alt="Givebutter" width="20" height="20" className="flex-shrink-0" />
           {!isNarrow && (
-            <nav className="flex">
+            <nav className="flex overflow-x-auto">
               {TOOLS.map(tool => (
                 <button
                   key={tool.id}
                   onClick={() => dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id })}
-                  className={`px-3 py-1 text-xs font-medium uppercase transition-colors ${
+                  className={`whitespace-nowrap px-3 py-1 text-xs font-medium uppercase transition-colors ${
                     activeTool === tool.id
                       ? 'bg-(--color-accent) text-(--color-accent-text)'
                       : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
@@ -117,13 +131,13 @@ export function Layout() {
             </nav>
           )}
           {isNarrow && (
-            <h1 className="text-xs font-bold uppercase tracking-widest text-(--color-text)">
+            <h1 className="text-xs font-bold uppercase tracking-widest text-(--color-text) truncate">
               {getToolById(activeTool).shortLabel}
             </h1>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {/* Mode toggle (dither only) */}
           {activeTool === 'dither' && (
             <div className="flex border border-(--color-border)">
@@ -144,7 +158,7 @@ export function Layout() {
           )}
 
           {/* Replace image button */}
-          {(activeTool === 'dither' || activeTool === 'grain') && (
+          {(activeTool === 'dither' || isEffect) && (
             <button
               onClick={handleReplaceClick}
               className="border border-(--color-border) px-3 py-1 text-xs font-medium uppercase text-(--color-text-secondary) transition-colors hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
@@ -176,33 +190,20 @@ export function Layout() {
       </header>
 
       {/* Main content */}
-      {activeTool === 'grain' ? (
+      {isEffect ? (
         <GrainProvider>
           <GrainApp
+            effectId={toGrainEffectId(activeTool)}
             isNarrow={isNarrow}
             sidebarOpen={sidebarOpen}
             onCloseSidebar={() => setSidebarOpen(false)}
-            toolSwitcher={
-              <div className="border-b border-(--color-border) px-4 py-2">
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Tools</span>
-                <div className="flex gap-2">
-                  {TOOLS.map(tool => (
-                    <button key={tool.id} onClick={() => { dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id }); setSidebarOpen(false); }} className={`px-3 py-1 text-xs font-medium uppercase transition-colors ${activeTool === tool.id ? 'bg-(--color-accent) text-(--color-accent-text)' : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'}`}>
-                      {tool.shortLabel}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            }
+            toolSwitcher={toolSwitcher}
           />
         </GrainProvider>
       ) : isNarrow ? (
         <div className="relative flex flex-1 flex-col overflow-hidden">
           <main className="flex-1 overflow-hidden">
-            {activeTool === 'dither'
-              ? (mode === 'single' ? <PreviewCanvas /> : <BatchPanel />)
-              : <ToolPlaceholder toolId={activeTool} />
-            }
+            {mode === 'single' ? <PreviewCanvas /> : <BatchPanel />}
           </main>
           {sidebarOpen && (
             <>
@@ -216,29 +217,17 @@ export function Layout() {
                     </svg>
                   </button>
                 </div>
-                <div className="border-b border-(--color-border) px-4 py-2">
-                  <span className="mb-1 block text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Tools</span>
-                  <div className="flex gap-2">
-                    {TOOLS.map(tool => (
-                      <button key={tool.id} onClick={() => { dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id }); setSidebarOpen(false); }} className={`px-3 py-1 text-xs font-medium uppercase transition-colors ${activeTool === tool.id ? 'bg-(--color-accent) text-(--color-accent-text)' : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'}`}>
-                        {tool.shortLabel}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {activeTool === 'dither' && <Sidebar />}
+                {toolSwitcher}
+                <Sidebar />
               </div>
             </>
           )}
         </div>
       ) : (
         <div className="flex flex-1 overflow-hidden">
-          {activeTool === 'dither' && <Sidebar />}
+          <Sidebar />
           <main className="flex-1 overflow-hidden">
-            {activeTool === 'dither'
-              ? (mode === 'single' ? <PreviewCanvas /> : <BatchPanel />)
-              : <ToolPlaceholder toolId={activeTool} />
-            }
+            {mode === 'single' ? <PreviewCanvas /> : <BatchPanel />}
           </main>
         </div>
       )}

@@ -8,7 +8,6 @@ import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { loadSampleImage } from '../../utils/sample-image';
-import { BgColorButton } from './BgColorButton';
 import type { CropAspectRatio } from '../../state/types';
 
 const MAX_WARN = 4096;
@@ -256,22 +255,10 @@ export function PreviewCanvas() {
               </button>
             ))}
           </div>
-          <BgColorButton />
         </div>
 
         {/* RIGHT: Grid + Zoom controls */}
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => dispatch({ type: 'TOGGLE_PIXEL_GRID' })}
-            className={`border border-(--color-border) px-2 py-1 text-xs transition-colors ${
-              state.showPixelGrid
-                ? 'bg-(--color-accent) text-(--color-accent-text) border-(--color-accent)'
-                : 'text-(--color-text-secondary) hover:text-(--color-text)'
-            }`}
-            title="Toggle pixel grid"
-          >
-            Grid
-          </button>
           <button onClick={zoomOut} className="border border-(--color-border) px-1.5 py-0.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">-</button>
           <span className="min-w-[3rem] text-center text-xs tabular-nums text-(--color-text-secondary)">
             {Math.round(state.zoom * 100)}%
