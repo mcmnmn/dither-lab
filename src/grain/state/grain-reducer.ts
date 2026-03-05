@@ -6,6 +6,7 @@ import {
   DEFAULT_PIXEL_SORT,
   DEFAULT_CROSSHATCH,
   DEFAULT_VHS,
+  DEFAULT_MATRIX_RAIN,
   DEFAULT_PROCESSING,
   DEFAULT_POST_PROCESSING,
 } from './defaults';
@@ -19,6 +20,7 @@ export const grainInitialState: GrainState = {
   pixelSort: { ...DEFAULT_PIXEL_SORT },
   crosshatch: { ...DEFAULT_CROSSHATCH },
   vhs: { ...DEFAULT_VHS },
+  matrixRain: { ...DEFAULT_MATRIX_RAIN },
 
   processing: { ...DEFAULT_PROCESSING },
   postProcessing: { ...DEFAULT_POST_PROCESSING },
@@ -52,6 +54,9 @@ export function grainReducer(state: GrainState, action: GrainAction): GrainState
 
     case 'GRAIN_UPDATE_VHS':
       return { ...state, vhs: { ...state.vhs, ...action.settings } };
+
+    case 'GRAIN_UPDATE_MATRIX_RAIN':
+      return { ...state, matrixRain: { ...state.matrixRain, ...action.settings } };
 
     case 'GRAIN_UPDATE_PROCESSING':
       return { ...state, processing: { ...state.processing, ...action.settings } };

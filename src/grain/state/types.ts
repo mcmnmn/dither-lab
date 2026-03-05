@@ -1,5 +1,5 @@
 // ── Effect IDs ──────────────────────────────────────────────
-export type GrainEffectId = 'ascii' | 'halftone' | 'noise-field' | 'pixel-sort' | 'crosshatch' | 'vhs';
+export type GrainEffectId = 'ascii' | 'halftone' | 'noise-field' | 'pixel-sort' | 'crosshatch' | 'vhs' | 'matrix-rain';
 export type GrainExportFormat = 'png' | 'jpeg' | 'gif';
 
 // ── Per-Effect Settings ─────────────────────────────────────
@@ -65,6 +65,21 @@ export interface VhsSettings {
   contrast: number;
 }
 
+export interface MatrixRainSettings {
+  charSet: 'standard' | 'extended' | 'blocks';
+  cellSize: number;
+  spacing: number;
+  speed: number;
+  trailLength: number;
+  direction: 'down' | 'up' | 'left' | 'right';
+  glow: number;
+  bgOpacity: number;
+  brightness: number;
+  contrast: number;
+  threshold: number;
+  rainColor: string;
+}
+
 // ── Shared Processing ───────────────────────────────────────
 export interface ProcessingSettings {
   invert: boolean;
@@ -126,6 +141,7 @@ export interface GrainState {
   pixelSort: PixelSortSettings;
   crosshatch: CrosshatchSettings;
   vhs: VhsSettings;
+  matrixRain: MatrixRainSettings;
 
   // Shared processing
   processing: ProcessingSettings;
@@ -149,6 +165,7 @@ export type GrainAction =
   | { type: 'GRAIN_UPDATE_PIXEL_SORT'; settings: Partial<PixelSortSettings> }
   | { type: 'GRAIN_UPDATE_CROSSHATCH'; settings: Partial<CrosshatchSettings> }
   | { type: 'GRAIN_UPDATE_VHS'; settings: Partial<VhsSettings> }
+  | { type: 'GRAIN_UPDATE_MATRIX_RAIN'; settings: Partial<MatrixRainSettings> }
   | { type: 'GRAIN_UPDATE_PROCESSING'; settings: Partial<ProcessingSettings> }
   | { type: 'GRAIN_UPDATE_POST_PROCESSING'; settings: Partial<PostProcessingSettings> }
   | { type: 'GRAIN_SET_EXPORT_FORMAT'; format: GrainExportFormat }

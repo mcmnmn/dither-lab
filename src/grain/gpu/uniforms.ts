@@ -230,6 +230,54 @@ export function hexToRgb(hex: string): [number, number, number] {
 }
 
 /**
+ * Pack Matrix Rain settings into uniform buffer.
+ * Layout matches Uniforms struct in matrix-rain.wgsl.
+ */
+export function packMatrixRainUniforms(
+  width: number,
+  height: number,
+  cellSize: number,
+  spacing: number,
+  speed: number,
+  trailLength: number,
+  direction: number,
+  glow: number,
+  bgOpacity: number,
+  brightness: number,
+  contrast: number,
+  threshold: number,
+  rainColor: [number, number, number],
+  time: number,
+  charSet: number
+): ArrayBuffer {
+  const buffer = new ArrayBuffer(80); // 20 floats = 80 bytes (aligned to 16)
+  const f32 = new Float32Array(buffer);
+
+  f32[0] = width;          // resolution.x
+  f32[1] = height;         // resolution.y
+  f32[2] = cellSize;       // cellSize
+  f32[3] = spacing;        // spacing
+  f32[4] = speed;          // speed
+  f32[5] = trailLength;    // trailLength
+  f32[6] = direction;      // direction
+  f32[7] = glow;           // glow
+  f32[8] = bgOpacity;      // bgOpacity
+  f32[9] = brightness;     // brightness
+  f32[10] = contrast;      // contrast
+  f32[11] = threshold;     // threshold
+  f32[12] = rainColor[0];  // rainR
+  f32[13] = rainColor[1];  // rainG
+  f32[14] = rainColor[2];  // rainB
+  f32[15] = time;          // time
+  f32[16] = charSet;       // charSet
+  f32[17] = 0;             // _pad.x
+  f32[18] = 0;             // _pad.y
+  f32[19] = 0;             // _pad.z
+
+  return buffer;
+}
+
+/**
  * Pack pre-processing settings into uniform buffer.
  * Layout matches PreUniforms struct in preprocess.wgsl.
  */

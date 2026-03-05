@@ -4,6 +4,7 @@ import { NoiseFieldSettings } from './panels/NoiseFieldSettings';
 import { PixelSortSettings } from './panels/PixelSortSettings';
 import { CrosshatchSettings } from './panels/CrosshatchSettings';
 import { VhsSettings } from './panels/VhsSettings';
+import { MatrixRainSettings } from './panels/MatrixRainSettings';
 import type { GrainEffectId } from '../state/types';
 
 export const EFFECTS: { id: GrainEffectId; label: string }[] = [
@@ -13,6 +14,7 @@ export const EFFECTS: { id: GrainEffectId; label: string }[] = [
   { id: 'pixel-sort', label: 'Pixel Sort' },
   { id: 'crosshatch', label: 'Crosshatch' },
   { id: 'vhs', label: 'VHS' },
+  { id: 'matrix-rain', label: 'Matrix Rain' },
 ];
 
 export function EffectSettings({ effect }: { effect: GrainEffectId }) {
@@ -29,5 +31,7 @@ export function EffectSettings({ effect }: { effect: GrainEffectId }) {
       return <CrosshatchSettings />;
     case 'vhs':
       return <VhsSettings />;
+    case 'matrix-rain':
+      return <MatrixRainSettings />;
   }
 }

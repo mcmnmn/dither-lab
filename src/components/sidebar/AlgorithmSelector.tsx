@@ -5,22 +5,21 @@ import { MatrixEditorModal } from '../matrix-editor/MatrixEditorModal';
 type DitherType = 'error-diffusion' | 'ordered' | 'random' | 'threshold' | 'custom';
 
 const DITHER_TYPES: { id: DitherType; label: string }[] = [
-  { id: 'error-diffusion', label: 'Error Diffusion' },
+  { id: 'error-diffusion', label: 'Map' },
   { id: 'ordered', label: 'Ordered' },
   { id: 'random', label: 'Random' },
-  { id: 'threshold', label: 'None' },
   { id: 'custom', label: 'Custom' },
 ];
 
 const DIFFUSION_MAPS: { id: string; label: string }[] = [
-  { id: 'floyd-steinberg', label: 'Floyd-Steinberg' },
-  { id: 'atkinson', label: 'Atkinson' },
-  { id: 'jarvis-judice-ninke', label: 'JJN' },
-  { id: 'stucki', label: 'Stucki' },
-  { id: 'burkes', label: 'Burkes' },
-  { id: 'sierra-full', label: 'Sierra Full' },
-  { id: 'sierra-two-row', label: 'Sierra Two-Row' },
-  { id: 'sierra-lite', label: 'Sierra Lite' },
+  { id: 'floyd-steinberg', label: 'Classic' },
+  { id: 'atkinson', label: 'Retro' },
+  { id: 'jarvis-judice-ninke', label: 'Silk' },
+  { id: 'stucki', label: 'Crisp' },
+  { id: 'burkes', label: 'Clean' },
+  { id: 'sierra-full', label: 'Rich' },
+  { id: 'sierra-two-row', label: 'Grain' },
+  { id: 'sierra-lite', label: 'Raw' },
 ];
 
 const ORDERED_MATRICES: { id: string; label: string }[] = [

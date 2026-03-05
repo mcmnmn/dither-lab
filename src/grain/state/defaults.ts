@@ -5,19 +5,20 @@ import type {
   PixelSortSettings,
   CrosshatchSettings,
   VhsSettings,
+  MatrixRainSettings,
   ProcessingSettings,
   PostProcessingSettings,
 } from './types';
 
 export const DEFAULT_ASCII: AsciiSettings = {
-  scale: 8,
-  spacing: 1,
+  scale: 9,
+  spacing: 3,
   outputWidth: 80,
   charSet: 'standard',
   colorMode: 'mono',
   fgColor: '#ffffff',
   bgColor: '#000000',
-  intensity: 10,
+  intensity: 5,
 };
 
 export const DEFAULT_HALFTONE: HalftoneSettings = {
@@ -69,6 +70,21 @@ export const DEFAULT_VHS: VhsSettings = {
   distortion: 20,
   brightness: 0,
   contrast: 0,
+};
+
+export const DEFAULT_MATRIX_RAIN: MatrixRainSettings = {
+  charSet: 'standard',
+  cellSize: 12,
+  spacing: 0,
+  speed: 1.0,
+  trailLength: 15,
+  direction: 'down',
+  glow: 1.0,
+  bgOpacity: 0.3,
+  brightness: 0,
+  contrast: 0,
+  threshold: 0,
+  rainColor: '#00ff00',
 };
 
 export const DEFAULT_PROCESSING: ProcessingSettings = {
