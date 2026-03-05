@@ -9,7 +9,7 @@ import { VideoControls } from '../common/VideoControls';
 import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
-import { isFirstVisit, markVisited, generateSampleImage } from '../../utils/sample-image';
+import { isFirstVisit, markVisited, loadSampleImage } from '../../utils/sample-image';
 
 const MAX_WARN = 4096;
 const MAX_REJECT = 8192;
@@ -25,9 +25,10 @@ export function PreviewCanvas() {
   // Load sample image on first visit
   useEffect(() => {
     if (!state.sourceImage && isFirstVisit()) {
-      const sample = generateSampleImage();
-      dispatch({ type: 'SET_SOURCE', imageData: sample, file: null, fileName: 'sample-gradient.png' });
-      markVisited();
+      loadSampleImage().then(sample => {
+        dispatch({ type: 'SET_SOURCE', imageData: sample, file: null, fileName: 'sample.jpg' });
+        markVisited();
+      });
     }
   }, [state.sourceImage, dispatch]);
 

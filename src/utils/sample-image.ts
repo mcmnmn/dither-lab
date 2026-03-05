@@ -9,10 +9,28 @@ export function markVisited() {
 }
 
 /**
- * Generate a colorful gradient test image procedurally.
- * Creates smooth HSL hue sweep with luminance gradient.
+ * Load the bundled sample image (public/sample.jpg) as ImageData.
+ * Falls back to a procedural gradient if the fetch fails.
  */
-export function generateSampleImage(width = 512, height = 512): ImageData {
+export async function loadSampleImage(): Promise<ImageData> {
+  try {
+    const res = await fetch('/sample.jpg');
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(bitmap, 0, 0);
+    return ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+  } catch {
+    return generateFallbackGradient();
+  }
+}
+
+/** Procedural HSL gradient fallback */
+function generateFallbackGradient(width = 512, height = 512): ImageData {
   const imageData = new ImageData(width, height);
   const data = imageData.data;
 
