@@ -8,6 +8,7 @@ import {
   packNoiseFieldUniforms,
   packAsciiUniforms,
   packPixelSortUniforms,
+  packMatrixRainUniforms,
   packPreProcessUniforms,
   packPostProcessUniforms,
   isPreProcessActive,
@@ -23,6 +24,7 @@ import vhsShader from './shaders/vhs.wgsl?raw';
 import noiseFieldShader from './shaders/noise-field.wgsl?raw';
 import asciiShader from './shaders/ascii.wgsl?raw';
 import pixelSortShader from './shaders/pixel-sort.wgsl?raw';
+import matrixRainShader from './shaders/matrix-rain.wgsl?raw';
 import preprocessShader from './shaders/preprocess.wgsl?raw';
 import postprocessShader from './shaders/postprocess.wgsl?raw';
 
@@ -31,6 +33,7 @@ const COLOR_MODE_MAP: Record<string, number> = { original: 0, mono: 1 };
 const CHAR_SET_MAP: Record<string, number> = { standard: 0, extended: 1, blocks: 2 };
 const SORT_BY_MAP: Record<string, number> = { brightness: 0, hue: 1, saturation: 2 };
 const DIRECTION_MAP: Record<string, number> = { horizontal: 0, vertical: 1 };
+const RAIN_DIRECTION_MAP: Record<string, number> = { down: 0, up: 1, left: 2, right: 3 };
 const NOISE_TYPE_MAP: Record<string, number> = { perlin: 0, simplex: 1 };
 
 interface EffectPipeline {
@@ -117,6 +120,7 @@ export class GrainPipeline {
       ['noise-field', noiseFieldShader],
       ['ascii', asciiShader],
       ['pixel-sort', pixelSortShader],
+      ['matrix-rain', matrixRainShader],
     ];
 
     for (const [id, shader] of effectShaders) {
@@ -163,6 +167,34 @@ export class GrainPipeline {
       this.sourceTexture.destroy();
     }
     this.sourceTexture = imageDataToTexture(this.device, imageData, 'source');
+  }
+
+  /** Upload a video frame directly to the source texture (zero-copy GPU path) */
+  setVideoFrame(video: HTMLVideoElement) {
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+    if (w === 0 || h === 0) return;
+
+    // Recreate texture if dimensions changed
+    if (!this.sourceTexture || this.sourceTexture.width !== w || this.sourceTexture.height !== h) {
+      this.sourceTexture?.destroy();
+      this.sourceTexture = this.device.createTexture({
+        label: 'source-video',
+        size: { width: w, height: h },
+        format: 'rgba8unorm',
+        usage:
+          GPUTextureUsage.TEXTURE_BINDING |
+          GPUTextureUsage.COPY_DST |
+          GPUTextureUsage.COPY_SRC |
+          GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+    }
+
+    this.device.queue.copyExternalImageToTexture(
+      { source: video },
+      { texture: this.sourceTexture },
+      { width: w, height: h }
+    );
   }
 
   render(state: GrainState) {
@@ -266,6 +298,16 @@ export class GrainPipeline {
           w, h, s.threshold, SORT_BY_MAP[s.sortBy] ?? 0,
           DIRECTION_MAP[s.direction] ?? 0, s.randomness,
           s.brightness, s.contrast
+        );
+      }
+      case 'matrix-rain': {
+        const s = state.matrixRain;
+        return packMatrixRainUniforms(
+          w, h, s.cellSize, s.spacing, s.speed, s.trailLength,
+          RAIN_DIRECTION_MAP[s.direction] ?? 0, s.glow, s.bgOpacity,
+          s.brightness, s.contrast, s.threshold,
+          hexToRgb(s.rainColor), this.frameCount / 60.0,
+          CHAR_SET_MAP[s.charSet] ?? 0
         );
       }
       default:

@@ -3,11 +3,18 @@ import { useGrainState, useGrainDispatch } from '../state/grain-context';
 import { getGPUDevice } from '../gpu/device';
 import { GrainPipeline } from '../gpu/pipeline';
 
-export function useGrainEngine(canvasRef: React.RefObject<HTMLCanvasElement | null>, sourceImage: ImageData | null, renderToken: number = 0) {
+export function useGrainEngine(
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  sourceImage: ImageData | null,
+  renderToken: number = 0,
+  sourceVideo: HTMLVideoElement | null = null
+) {
   const state = useGrainState();
   const dispatch = useGrainDispatch();
   const pipelineRef = useRef<GrainPipeline | null>(null);
   const initRef = useRef(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // Initialize GPU device + pipeline
   useEffect(() => {
@@ -63,9 +70,52 @@ export function useGrainEngine(canvasRef: React.RefObject<HTMLCanvasElement | nu
     state.pixelSort,
     state.crosshatch,
     state.vhs,
+    state.matrixRain,
     state.processing,
     state.postProcessing,
     renderToken,
     dispatch,
   ]);
+
+  // Animation loop for time-based effects (matrix rain)
+  useEffect(() => {
+    if (!pipelineRef.current || !sourceImage) return;
+    if (state.activeEffect !== 'matrix-rain') return;
+
+    let animId: number;
+    const loop = () => {
+      if (pipelineRef.current) {
+        pipelineRef.current.render(state);
+      }
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+
+    return () => cancelAnimationFrame(animId);
+  }, [sourceImage, state]);
+
+  // Video frame loop — upload video frames to GPU and render each frame
+  useEffect(() => {
+    if (!pipelineRef.current || !sourceVideo) return;
+
+    let animId: number;
+    let running = true;
+
+    sourceVideo.play().catch(() => {});
+
+    const loop = () => {
+      if (!running || !pipelineRef.current) return;
+      if (!sourceVideo.paused && !sourceVideo.ended) {
+        pipelineRef.current.setVideoFrame(sourceVideo);
+        pipelineRef.current.render(stateRef.current);
+      }
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(animId);
+    };
+  }, [sourceVideo, state.gpuReady]);
 }

@@ -6,6 +6,7 @@ export type AppMode = 'single' | 'batch';
 export type ExportFormat = 'png' | 'jpg' | 'gif' | 'webp';
 export type ThemeId = 'butterlite' | 'noir' | 'vt320' | 'cassette';
 export type ToolId = 'dither' | 'grain' | 'gradient';
+export type SourceMediaType = 'image' | 'video' | 'glb';
 
 export interface BatchItem {
   id: string;
@@ -21,8 +22,11 @@ export interface AppState {
   // Mode
   mode: AppMode;
 
-  // Source image
+  // Source media
+  sourceMediaType: SourceMediaType;
   sourceImage: ImageData | null;
+  sourceVideo: HTMLVideoElement | null;
+  sourceGlbUrl: string | null;
   sourceFile: File | null;
   fileName: string;
 
@@ -81,6 +85,9 @@ export interface SettingsSnapshot {
 
 export type AppAction =
   | { type: 'SET_SOURCE'; imageData: ImageData; file: File | null; fileName: string }
+  | { type: 'SET_VIDEO_SOURCE'; videoElement: HTMLVideoElement; file: File; fileName: string }
+  | { type: 'SET_GLB_SOURCE'; glbUrl: string; file: File; fileName: string }
+  | { type: 'SET_VIDEO_FRAME'; imageData: ImageData }
   | { type: 'SET_RESULT'; imageData: ImageData; duration: number }
   | { type: 'SET_PROCESSING'; processing: boolean }
   | { type: 'SET_ALGORITHM'; algorithmId: string }

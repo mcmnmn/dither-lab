@@ -4,7 +4,10 @@ import { useAppState, useAppDispatch } from '../../state/app-context';
 import { isWebGPUSupported } from '../gpu/device';
 import { useGrainEngine } from '../hooks/use-grain-engine';
 import { DropZone } from '../../components/common/DropZone';
+import { VideoControls } from '../../components/common/VideoControls';
+import { GlbViewer } from '../../components/canvas/GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
+import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 
 interface GrainCanvasProps {
   canvasRef?: React.RefObject<HTMLCanvasElement | null>;
@@ -22,7 +25,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   const [renderToken, setRenderToken] = useState(0);
 
   // Initialize the GPU engine (only runs when canvas is in DOM and GPU is available)
-  useGrainEngine(gpuSupported ? canvasRef : { current: null }, appState.sourceImage, renderToken);
+  useGrainEngine(gpuSupported ? canvasRef : { current: null }, appState.sourceImage, renderToken, appState.sourceVideo);
 
   // Resize canvas — fit source image aspect ratio within container
   useEffect(() => {
@@ -37,9 +40,13 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       let fitW = cw;
       let fitH = ch;
 
-      if (appState.sourceImage) {
-        const imgW = appState.sourceImage.width;
-        const imgH = appState.sourceImage.height;
+      // Get source dimensions from image or video
+      const srcW = appState.sourceImage?.width ?? appState.sourceVideo?.videoWidth;
+      const srcH = appState.sourceImage?.height ?? appState.sourceVideo?.videoHeight;
+
+      if (srcW && srcH) {
+        const imgW = srcW;
+        const imgH = srcH;
         const containerAspect = cw / ch;
         const imageAspect = imgW / imgH;
 
@@ -67,7 +74,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
     recalc(); // Initial calculation
 
     return () => observer.disconnect();
-  }, [appState.sourceImage]);
+  }, [appState.sourceImage, appState.sourceVideo]);
 
   // Handle clipboard paste
   useEffect(() => {
@@ -75,7 +82,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
-        if (item.type.startsWith('image/')) {
+        if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
           const file = item.getAsFile();
           if (file) handleFiles([file]);
           return;
@@ -89,8 +96,17 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   const handleFiles = useCallback(async (files: File[]) => {
     const file = files[0];
     if (!file) return;
-    const imageData = await loadImageFile(file);
-    appDispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
+    const mediaType = detectMediaType(file);
+    if (mediaType === 'video') {
+      const videoElement = await loadVideoFile(file);
+      appDispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
+    } else if (mediaType === 'glb') {
+      const glbUrl = URL.createObjectURL(file);
+      appDispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
+    } else {
+      const imageData = await loadImageFile(file);
+      appDispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
+    }
   }, [appDispatch]);
 
   // WebGPU not supported fallback
@@ -110,25 +126,41 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
     );
   }
 
+  const hasSource = appState.sourceImage || appState.sourceVideo || appState.sourceGlbUrl;
+
+  // GLB source — show 3D viewer (separate from GPU canvas)
+  if (appState.sourceMediaType === 'glb' && appState.sourceGlbUrl) {
+    return (
+      <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-(--color-bg)">
+        <GlbViewer glbUrl={appState.sourceGlbUrl} fileName={appState.fileName} />
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-(--color-bg)">
       {/* WebGPU canvas — always mounted for GPU init, centered with aspect ratio */}
       <canvas
         ref={canvasRef}
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${appState.sourceImage ? '' : 'hidden'}`}
+        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${hasSource ? '' : 'hidden'}`}
         style={canvasSize ? { width: canvasSize.width, height: canvasSize.height } : undefined}
       />
 
-      {/* Drop zone overlay when no source image */}
-      {!appState.sourceImage && (
+      {/* Video controls overlay */}
+      {appState.sourceVideo && (
+        <VideoControls video={appState.sourceVideo} />
+      )}
+
+      {/* Drop zone overlay when no source */}
+      {!hasSource && (
         <DropZone onFiles={handleFiles} className="absolute inset-0 flex cursor-pointer items-center justify-center">
           <div className="text-center">
             <div className="mb-1 font-mono text-lg text-(--color-border)">[ &nbsp;+ &nbsp;]</div>
             <p className="font-mono text-xs text-(--color-text-secondary)">
-              Drop an image here, click to browse, or paste from clipboard
+              Drop a file here, click to browse, or paste from clipboard
             </p>
             <p className="mt-1 font-mono text-[10px] text-(--color-text-secondary)/60">
-              PNG, JPG, WebP, BMP, GIF
+              PNG, JPG, WebP, GIF, MP4, WebM, GLB
             </p>
           </div>
         </DropZone>
@@ -142,7 +174,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       )}
 
       {/* Render time indicator */}
-      {appState.sourceImage && grainState.renderTime > 0 && (
+      {hasSource && grainState.renderTime > 0 && (
         <div className="pointer-events-none absolute bottom-2 right-2 font-mono text-[10px] text-(--color-text-secondary)/50">
           {grainState.renderTime.toFixed(1)}ms
         </div>

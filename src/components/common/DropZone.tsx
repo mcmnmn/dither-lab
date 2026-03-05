@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, type ReactNode, type DragEvent } from 'react';
+import { isAcceptedMedia, MEDIA_ACCEPT } from '../../utils/media-io';
 
 interface DropZoneProps {
   onFiles: (files: File[]) => void;
@@ -8,7 +9,7 @@ interface DropZoneProps {
   className?: string;
 }
 
-export function DropZone({ onFiles, accept = 'image/*', multiple = false, children, className = '' }: DropZoneProps) {
+export function DropZone({ onFiles, accept = MEDIA_ACCEPT, multiple = false, children, className = '' }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dragCounter = useRef(0);
@@ -34,7 +35,7 @@ export function DropZone({ onFiles, accept = 'image/*', multiple = false, childr
     dragCounter.current = 0;
     setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    const files = Array.from(e.dataTransfer.files).filter(isAcceptedMedia);
     if (files.length > 0) onFiles(multiple ? files : [files[0]]);
   }, [onFiles, multiple]);
 

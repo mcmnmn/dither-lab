@@ -4,7 +4,11 @@ import { useZoomPan } from '../../hooks/use-zoom-pan';
 import { ComparisonSlider } from './ComparisonSlider';
 import { SideBySide } from './SideBySide';
 import { DropZone } from '../common/DropZone';
+import { VideoOverlay } from './VideoOverlay';
+import { VideoControls } from '../common/VideoControls';
+import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
+import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { isFirstVisit, markVisited, generateSampleImage } from '../../utils/sample-image';
 
 const MAX_WARN = 4096;
@@ -30,6 +34,23 @@ export function PreviewCanvas() {
   const handleFiles = useCallback(async (files: File[]) => {
     const file = files[0];
     if (!file) return;
+
+    const mediaType = detectMediaType(file);
+
+    if (mediaType === 'video') {
+      setSizeWarning(null);
+      const videoElement = await loadVideoFile(file);
+      dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
+      return;
+    }
+
+    if (mediaType === 'glb') {
+      setSizeWarning(null);
+      const glbUrl = URL.createObjectURL(file);
+      dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
+      return;
+    }
+
     const imageData = await loadImageFile(file);
 
     // Size check
@@ -52,7 +73,7 @@ export function PreviewCanvas() {
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
-        if (item.type.startsWith('image/')) {
+        if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
           const file = item.getAsFile();
           if (file) handleFiles([file]);
           return;
@@ -136,7 +157,9 @@ export function PreviewCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  if (!state.sourceImage) {
+  const hasSource = state.sourceImage || state.sourceVideo || state.sourceGlbUrl;
+
+  if (!hasSource) {
     return (
       <DropZone
         onFiles={handleFiles}
@@ -145,13 +168,35 @@ export function PreviewCanvas() {
         <div className="text-center">
           <div className="mb-3 text-2xl text-(--color-border)">[ + ]</div>
           <p className="text-xs text-(--color-text-secondary)">
-            Drop an image here, click to browse, or paste from clipboard
+            Drop a file here, click to browse, or paste from clipboard
           </p>
           <p className="mt-1 text-xs text-(--color-text-secondary) opacity-60">
-            PNG, JPG, WebP, BMP, GIF
+            PNG, JPG, WebP, GIF, MP4, WebM, GLB
           </p>
         </div>
       </DropZone>
+    );
+  }
+
+  // Video source — show video overlay with dither frame capture
+  if (state.sourceMediaType === 'video' && state.sourceVideo) {
+    return (
+      <div className="flex h-full flex-col bg-(--color-bg)">
+        <div ref={containerRef} className="relative flex-1 overflow-hidden">
+          <canvas ref={canvasRef} className="absolute inset-0" />
+          <VideoOverlay />
+          <VideoControls video={state.sourceVideo} />
+        </div>
+      </div>
+    );
+  }
+
+  // GLB source — show 3D viewer
+  if (state.sourceMediaType === 'glb' && state.sourceGlbUrl) {
+    return (
+      <div className="flex h-full flex-col bg-(--color-bg)">
+        <GlbViewer glbUrl={state.sourceGlbUrl} fileName={state.fileName} />
+      </div>
     );
   }
 

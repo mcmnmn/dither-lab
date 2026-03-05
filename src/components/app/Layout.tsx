@@ -7,6 +7,7 @@ import { ToolPlaceholder } from './ToolPlaceholder';
 import { GrainProvider } from '../../grain/state/grain-context';
 import { GrainApp } from '../../grain/components/GrainApp';
 import { loadImageFile } from '../../utils/image-io';
+import { detectMediaType, loadVideoFile, MEDIA_ACCEPT } from '../../utils/media-io';
 import type { ThemeId } from '../../state/types';
 import { TOOLS, getToolById } from '../../state/tools';
 
@@ -55,8 +56,17 @@ export function Layout() {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       const file = files[0];
-      const imageData = await loadImageFile(file);
-      dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
+      const mediaType = detectMediaType(file);
+      if (mediaType === 'video') {
+        const videoElement = await loadVideoFile(file);
+        dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
+      } else if (mediaType === 'glb') {
+        const glbUrl = URL.createObjectURL(file);
+        dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
+      } else {
+        const imageData = await loadImageFile(file);
+        dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
+      }
     }
     e.target.value = '';
   }, [dispatch]);
@@ -67,7 +77,7 @@ export function Layout() {
       <input
         ref={replaceInputRef}
         type="file"
-        accept="image/*"
+        accept={MEDIA_ACCEPT}
         className="hidden"
         onChange={handleReplaceInput}
       />
