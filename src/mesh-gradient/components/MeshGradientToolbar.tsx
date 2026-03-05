@@ -3,7 +3,7 @@ import { useMeshGradientState, useMeshGradientDispatch } from '../state/context'
 import { renderMeshGradient } from '../engine/render-mesh';
 import { generateSVG } from '../engine/generate-code';
 import { downloadBlob } from '../../utils/image-io';
-import { EXPORT_RESOLUTIONS } from '../state/defaults';
+import { EXPORT_RESOLUTIONS, meshGradientInitialState } from '../state/defaults';
 import type { MeshExportFormat, MeshExportResolution } from '../state/types';
 
 export function MeshGradientToolbar() {
@@ -39,7 +39,7 @@ export function MeshGradientToolbar() {
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d')!;
-    renderMeshGradient(ctx, size, size, state.nodes, state.bgColor, state.effects, state.noise);
+    renderMeshGradient(ctx, size, size, state.nodes, state.bgColor, state.effects);
 
     const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
     const quality = format === 'jpg' ? 0.92 : undefined;
@@ -56,12 +56,11 @@ export function MeshGradientToolbar() {
 
   const handleReset = useCallback(() => {
     dispatch({ type: 'MG_PUSH_HISTORY' });
-    dispatch({ type: 'MG_LOAD_STATE', state: { nodes: [
-      { id: '1', x: 0.2, y: 0.2, color: '#ff6b35' },
-      { id: '2', x: 0.8, y: 0.25, color: '#f7c59f' },
-      { id: '3', x: 0.5, y: 0.75, color: '#1a535c' },
-      { id: '4', x: 0.15, y: 0.7, color: '#4ecdc4' },
-    ], bgColor: '#1a1a2e', effects: { blur: 40, intensity: 80, smoothness: 60 }, noise: { amount: 0, scale: 50 } } });
+    dispatch({ type: 'MG_LOAD_STATE', state: {
+      nodes: meshGradientInitialState.nodes,
+      bgColor: meshGradientInitialState.bgColor,
+      effects: meshGradientInitialState.effects,
+    } });
   }, [dispatch]);
 
   const showResolution = state.exportFormat === 'png' || state.exportFormat === 'jpg';

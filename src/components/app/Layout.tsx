@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppState, useAppDispatch } from '../../state/app-context';
 import { Sidebar } from '../sidebar/Sidebar';
 import { PreviewCanvas } from '../canvas/PreviewCanvas';
@@ -11,8 +11,7 @@ import { CampaignGeneratorProvider } from '../../campaign-generator/state/contex
 import { CampaignGeneratorApp } from '../../campaign-generator/components/CampaignGeneratorApp';
 import { MeshGradientProvider } from '../../mesh-gradient/state/context';
 import { MeshGradientApp } from '../../mesh-gradient/components/MeshGradientApp';
-import { loadImageFile } from '../../utils/image-io';
-import { detectMediaType, loadVideoFile, MEDIA_ACCEPT } from '../../utils/media-io';
+import { FeedbackModal } from '../feedback/FeedbackModal';
 import type { ThemeId } from '../../state/types';
 import { TOOLS, getToolById, isEffectTool, toGrainEffectId } from '../../state/tools';
 
@@ -41,13 +40,8 @@ export function Layout() {
   const { mode, theme, activeTool } = state;
   const dispatch = useAppDispatch();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
-  const replaceInputRef = useRef<HTMLInputElement>(null);
-  const ceReplaceHandlerRef = useRef<(() => void) | null>(null);
-
-  const handleCeRegisterReplace = useCallback((handler: () => void) => {
-    ceReplaceHandlerRef.current = handler;
-  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -61,29 +55,6 @@ export function Layout() {
   useEffect(() => {
     if (!isNarrow) setSidebarOpen(false);
   }, [isNarrow]);
-
-  const handleReplaceClick = useCallback(() => {
-    replaceInputRef.current?.click();
-  }, []);
-
-  const handleReplaceInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      const file = files[0];
-      const mediaType = detectMediaType(file);
-      if (mediaType === 'video') {
-        const videoElement = await loadVideoFile(file);
-        dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
-      } else if (mediaType === 'glb') {
-        const glbUrl = URL.createObjectURL(file);
-        dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
-      } else {
-        const imageData = await loadImageFile(file);
-        dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
-      }
-    }
-    e.target.value = '';
-  }, [dispatch]);
 
   const isEffect = isEffectTool(activeTool);
 
@@ -102,15 +73,6 @@ export function Layout() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Hidden file input for Replace */}
-      <input
-        ref={replaceInputRef}
-        type="file"
-        accept={MEDIA_ACCEPT}
-        className="hidden"
-        onChange={handleReplaceInput}
-      />
-
       {/* Header */}
       <header className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-secondary) px-4 py-2">
         <div className="flex items-center gap-3 min-w-0">
@@ -156,36 +118,6 @@ export function Layout() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Mode toggle */}
-          {(activeTool === 'dither' || isEffect) && (
-            <div className="flex border border-(--color-border)">
-              {(['single', 'batch'] as const).map(m => (
-                <button
-                  key={m}
-                  onClick={() => dispatch({ type: 'SET_MODE', mode: m })}
-                  className={`px-3 py-1 text-xs font-medium uppercase transition-colors ${
-                    mode === m
-                      ? 'bg-(--color-accent) text-(--color-accent-text)'
-                      : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Replace image button */}
-          {(activeTool === 'dither' || isEffect || activeTool === 'color-extractor') && (
-            <button
-              onClick={activeTool === 'color-extractor' ? () => ceReplaceHandlerRef.current?.() : handleReplaceClick}
-              className="border border-(--color-border) px-3 py-1 text-xs font-medium uppercase text-(--color-text-secondary) transition-colors hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
-              title="Replace image"
-            >
-              Replace
-            </button>
-          )}
-
           {/* Theme cycle */}
           <button
             onClick={() => {
@@ -204,7 +136,16 @@ export function Layout() {
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
             </svg>
           </button>
+
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="border border-(--color-border) px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-(--color-text-secondary) transition-colors hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
+          >
+            Feedback
+          </button>
         </div>
+
+        <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       </header>
 
       {/* Main content */}
@@ -233,7 +174,6 @@ export function Layout() {
             sidebarOpen={sidebarOpen}
             onCloseSidebar={() => setSidebarOpen(false)}
             toolSwitcher={toolSwitcher}
-            onRegisterReplace={handleCeRegisterReplace}
           />
         </ColorExtractorProvider>
       ) : isEffect ? (

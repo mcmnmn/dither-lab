@@ -1,4 +1,5 @@
 export type HarmonyRule = 'analogous' | 'complementary' | 'split-complementary' | 'triadic' | 'tetradic' | 'random';
+export type MeshBlendMode = 'normal' | 'screen' | 'multiply' | 'overlay' | 'soft-light';
 export type MeshExportFormat = 'png' | 'jpg' | 'svg' | 'css';
 export type MeshExportResolution = 1024 | 2048 | 4096;
 
@@ -10,21 +11,15 @@ export interface MeshNode {
 }
 
 export interface MeshEffects {
-  blur: number;
   intensity: number;
   smoothness: number;
-}
-
-export interface MeshNoise {
-  amount: number;
-  scale: number;
+  blendMode: MeshBlendMode;
 }
 
 export interface MeshSettingsSnapshot {
   nodes: MeshNode[];
   bgColor: string;
   effects: MeshEffects;
-  noise: MeshNoise;
 }
 
 export interface MeshGradientState {
@@ -32,7 +27,6 @@ export interface MeshGradientState {
   bgColor: string;
   harmonyRule: HarmonyRule;
   effects: MeshEffects;
-  noise: MeshNoise;
   darkPreview: boolean;
   exportFormat: MeshExportFormat;
   exportResolution: MeshExportResolution;
@@ -51,7 +45,6 @@ export type MeshGradientAction =
   | { type: 'MG_SET_BG_COLOR'; color: string }
   | { type: 'MG_SET_HARMONY'; rule: HarmonyRule }
   | { type: 'MG_UPDATE_EFFECTS'; effects: Partial<MeshEffects> }
-  | { type: 'MG_UPDATE_NOISE'; noise: Partial<MeshNoise> }
   | { type: 'MG_TOGGLE_DARK_PREVIEW' }
   | { type: 'MG_SET_EXPORT_FORMAT'; format: MeshExportFormat }
   | { type: 'MG_SET_EXPORT_RESOLUTION'; resolution: MeshExportResolution }

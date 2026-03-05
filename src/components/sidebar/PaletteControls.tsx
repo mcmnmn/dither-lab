@@ -3,24 +3,6 @@ import { PALETTE_PRESETS } from '../../palette/presets';
 import { rgbToHex, hexToRgb } from '../../utils/color';
 import { Tooltip } from '../common/Tooltip';
 
-const RECENT_PALETTES_KEY = 'dither-lab-recent-palettes';
-const MAX_RECENT = 5;
-
-function loadRecentPalettes(): number[][][] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_PALETTES_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveRecentPalette(colors: number[][]) {
-  const recent = loadRecentPalettes();
-  const serialized = JSON.stringify(colors);
-  // Don't add duplicates
-  const filtered = recent.filter(p => JSON.stringify(p) !== serialized);
-  filtered.unshift(colors);
-  localStorage.setItem(RECENT_PALETTES_KEY, JSON.stringify(filtered.slice(0, MAX_RECENT)));
-}
-
 const PALETTE_MODE_TOOLTIPS: Record<string, string> = {
   preset: 'Use a built-in color palette',
   auto: 'Extract palette from the image',
@@ -30,14 +12,11 @@ const PALETTE_MODE_TOOLTIPS: Record<string, string> = {
 export function PaletteControls() {
   const { paletteMode, presetId, manualColors, colorCount } = useAppState();
   const dispatch = useAppDispatch();
-  const recentPalettes = loadRecentPalettes();
-
   const handleManualColorChange = (index: number, hex: string) => {
     const rgb = hexToRgb(hex);
     const newColors = [...manualColors];
     newColors[index] = rgb;
     dispatch({ type: 'SET_MANUAL_COLORS', colors: newColors });
-    saveRecentPalette(newColors);
   };
 
   const handleAddColor = () => {
@@ -48,11 +27,6 @@ export function PaletteControls() {
   const handleRemoveColor = () => {
     const newColors = manualColors.slice(0, -1);
     dispatch({ type: 'SET_MANUAL_COLORS', colors: newColors });
-  };
-
-  const handleLoadRecent = (palette: number[][]) => {
-    dispatch({ type: 'SET_MANUAL_COLORS', colors: palette });
-    dispatch({ type: 'SET_PALETTE_MODE', mode: 'manual' });
   };
 
   return (
@@ -152,29 +126,6 @@ export function PaletteControls() {
           </div>
         )}
 
-        {/* Recent palettes */}
-        {recentPalettes.length > 0 && (
-          <div className="space-y-1.5">
-            <span className="text-xs text-(--color-text-secondary)">Recent Palettes</span>
-            <div className="space-y-1">
-              {recentPalettes.map((palette, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleLoadRecent(palette)}
-                  className="flex w-full gap-0 border border-(--color-border) bg-(--color-bg) p-1 hover:border-(--color-accent) transition-all"
-                >
-                  {palette.map((c, j) => (
-                    <div
-                      key={j}
-                      className="h-4 flex-1"
-                      style={{ backgroundColor: rgbToHex(c[0], c[1], c[2]) }}
-                    />
-                  ))}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

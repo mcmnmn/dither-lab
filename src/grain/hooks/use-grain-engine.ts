@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useGrainState, useGrainDispatch } from '../state/grain-context';
+import { useAppState } from '../../state/app-context';
 import { getGPUDevice } from '../gpu/device';
 import { GrainPipeline } from '../gpu/pipeline';
+import { cropImageData } from '../../utils/crop';
 
 export function useGrainEngine(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -11,10 +13,17 @@ export function useGrainEngine(
 ) {
   const state = useGrainState();
   const dispatch = useGrainDispatch();
+  const { cropAspectRatio } = useAppState();
   const pipelineRef = useRef<GrainPipeline | null>(null);
   const initRef = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  // Apply crop to source image
+  const croppedImage = useMemo(() => {
+    if (!sourceImage) return null;
+    return cropImageData(sourceImage, cropAspectRatio);
+  }, [sourceImage, cropAspectRatio]);
 
   // Initialize GPU device + pipeline
   useEffect(() => {
@@ -48,20 +57,20 @@ export function useGrainEngine(
 
   // Upload source image when it changes (or when pipeline becomes ready)
   useEffect(() => {
-    if (!pipelineRef.current || !sourceImage) return;
-    pipelineRef.current.setSource(sourceImage);
-  }, [sourceImage, state.gpuReady]);
+    if (!pipelineRef.current || !croppedImage) return;
+    pipelineRef.current.setSource(croppedImage);
+  }, [croppedImage, state.gpuReady]);
 
   // Re-render when settings change (or when pipeline becomes ready)
   useEffect(() => {
-    if (!pipelineRef.current || !sourceImage) return;
+    if (!pipelineRef.current || !croppedImage) return;
 
     const start = performance.now();
     pipelineRef.current.render(state);
     const elapsed = performance.now() - start;
     dispatch({ type: 'GRAIN_SET_RENDER_TIME', time: elapsed });
   }, [
-    sourceImage,
+    croppedImage,
     state.gpuReady,
     state.activeEffect,
     state.halftone,

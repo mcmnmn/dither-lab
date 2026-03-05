@@ -23,8 +23,8 @@ export function MeshGradientCanvas() {
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
-    renderMeshGradient(ctx, w, h, state.nodes, state.bgColor, state.effects, state.noise);
-  }, [state.nodes, state.bgColor, state.effects, state.noise]);
+    renderMeshGradient(ctx, w, h, state.nodes, state.bgColor, state.effects);
+  }, [state.nodes, state.bgColor, state.effects]);
 
   // Resize observer
   useEffect(() => {
@@ -48,13 +48,13 @@ export function MeshGradientCanvas() {
         canvas.style.height = `${Math.floor(height)}px`;
         ctx.scale(dpr, dpr);
 
-        renderMeshGradient(ctx, Math.floor(width), Math.floor(height), state.nodes, state.bgColor, state.effects, state.noise);
+        renderMeshGradient(ctx, Math.floor(width), Math.floor(height), state.nodes, state.bgColor, state.effects);
       }
     });
 
     ro.observe(container);
     return () => ro.disconnect();
-  }, [state.nodes, state.bgColor, state.effects, state.noise]);
+  }, [state.nodes, state.bgColor, state.effects]);
 
   // Drag handlers
   const handlePointerDown = useCallback((nodeId: string, e: React.PointerEvent) => {

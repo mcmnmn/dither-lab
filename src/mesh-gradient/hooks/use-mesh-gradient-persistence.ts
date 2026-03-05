@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useMeshGradientState, useMeshGradientDispatch } from '../state/context';
+import { meshGradientInitialState } from '../state/defaults';
 import type { HarmonyRule, MeshExportFormat, MeshExportResolution } from '../state/types';
 
 const STORAGE_KEY = 'mesh-gradient-settings';
@@ -27,8 +28,7 @@ export function useMeshGradientPersistence() {
           ...(parsed.harmonyRule && VALID_HARMONIES.includes(parsed.harmonyRule)
             ? { harmonyRule: parsed.harmonyRule }
             : {}),
-          ...(parsed.effects ? { effects: parsed.effects } : {}),
-          ...(parsed.noise ? { noise: parsed.noise } : {}),
+          ...(parsed.effects ? { effects: { ...meshGradientInitialState.effects, ...parsed.effects } } : {}),
           ...(typeof parsed.darkPreview === 'boolean' ? { darkPreview: parsed.darkPreview } : {}),
           ...(parsed.exportFormat && VALID_FORMATS.includes(parsed.exportFormat)
             ? { exportFormat: parsed.exportFormat }
@@ -53,11 +53,10 @@ export function useMeshGradientPersistence() {
       bgColor: state.bgColor,
       harmonyRule: state.harmonyRule,
       effects: state.effects,
-      noise: state.noise,
       darkPreview: state.darkPreview,
       exportFormat: state.exportFormat,
       exportResolution: state.exportResolution,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [state.bgColor, state.harmonyRule, state.effects, state.noise, state.darkPreview, state.exportFormat, state.exportResolution]);
+  }, [state.bgColor, state.harmonyRule, state.effects, state.darkPreview, state.exportFormat, state.exportResolution]);
 }

@@ -1,9 +1,10 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { ColorExtractorCanvas } from './ColorExtractorCanvas';
 import { ColorExtractorSidebar } from './ColorExtractorSidebar';
 import { SettingsPanel } from './panels/SettingsPanel';
 import { PalettePanel } from './panels/PalettePanel';
 import { ExportPanel } from './panels/ExportPanel';
+import { InputSection } from '../../components/sidebar/InputSection';
 import { useColorExtractorPersistence } from '../hooks/use-color-extractor-persistence';
 import { useColorExtractorDispatch } from '../state/context';
 import { loadImageFile } from '../../utils/image-io';
@@ -13,46 +14,22 @@ interface ColorExtractorAppProps {
   sidebarOpen: boolean;
   onCloseSidebar: () => void;
   toolSwitcher: React.ReactNode;
-  onRegisterReplace: (handler: () => void) => void;
 }
 
-export function ColorExtractorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher, onRegisterReplace }: ColorExtractorAppProps) {
+export function ColorExtractorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: ColorExtractorAppProps) {
   useColorExtractorPersistence();
   const dispatch = useColorExtractorDispatch();
-  const replaceInputRef = useRef<HTMLInputElement>(null);
 
-  const handleReplaceClick = useCallback(() => {
-    replaceInputRef.current?.click();
-  }, []);
-
-  // Register the replace handler with the parent Layout
-  useEffect(() => {
-    onRegisterReplace(handleReplaceClick);
-  }, [onRegisterReplace, handleReplaceClick]);
-
-  const handleReplaceInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      const imageData = await loadImageFile(files[0]);
-      dispatch({ type: 'CE_SET_SOURCE', imageData, fileName: files[0].name });
-    }
-    e.target.value = '';
+  const handleFiles = useCallback(async (files: File[]) => {
+    const file = files[0];
+    if (!file) return;
+    const imageData = await loadImageFile(file);
+    dispatch({ type: 'CE_SET_SOURCE', imageData, fileName: file.name });
   }, [dispatch]);
-
-  const replaceInput = (
-    <input
-      ref={replaceInputRef}
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={handleReplaceInput}
-    />
-  );
 
   if (isNarrow) {
     return (
       <div className="relative flex flex-1 flex-col overflow-hidden">
-        {replaceInput}
         <main className="flex-1 overflow-hidden">
           <ColorExtractorCanvas />
         </main>
@@ -70,6 +47,11 @@ export function ColorExtractorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolS
               </div>
               {toolSwitcher}
               <div className="flex flex-col gap-4 p-4">
+                <InputSection
+                  onFiles={handleFiles}
+                  accept="image/*"
+                  formatHint="PNG, JPG, WebP, GIF"
+                />
                 <SettingsPanel />
                 <PalettePanel />
                 <ExportPanel />
@@ -83,7 +65,6 @@ export function ColorExtractorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolS
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      {replaceInput}
       <ColorExtractorSidebar />
       <main className="flex flex-1 flex-col overflow-hidden">
         <ColorExtractorCanvas />

@@ -1,16 +1,20 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { GrainCanvas } from './GrainCanvas';
 import { GrainRightSidebar } from './GrainRightSidebar';
 import { useGrainPersistence } from '../hooks/use-grain-persistence';
 import { useGrainState, useGrainDispatch } from '../state/grain-context';
-import { useAppState } from '../../state/app-context';
+import { useAppState, useAppDispatch } from '../../state/app-context';
 import { EffectSettings } from './effects';
 import { useGrainExport } from '../hooks/use-grain-export';
 import { ProcessingPanel } from './panels/ProcessingPanel';
 import { PostProcessingPanel } from './panels/PostProcessingPanel';
 import { ExportPanel } from './panels/ExportPanel';
+import { InputSection } from '../../components/sidebar/InputSection';
 import { BatchPanel } from '../../components/batch/BatchPanel';
+import { loadImageFile } from '../../utils/image-io';
+import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import type { GrainEffectId } from '../state/types';
+import type { BatchItem } from '../../state/types';
 
 interface GrainAppProps {
   effectId: GrainEffectId;
@@ -64,13 +68,40 @@ function GrainNarrowLayout({
   toolSwitcher: React.ReactNode;
 }) {
   const { activeEffect } = useGrainState();
-  const { sourceImage, mode } = useAppState();
-  const { exportFormat, setFormat, download } = useGrainExport(canvasRef);
+  const state = useAppState();
+  const dispatch = useAppDispatch();
+  const { download } = useGrainExport(canvasRef);
+
+  const handleFiles = useCallback(async (files: File[]) => {
+    if (state.mode === 'batch') {
+      const items: BatchItem[] = files.map(file => ({
+        id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        status: 'queued',
+      }));
+      dispatch({ type: 'ADD_BATCH_ITEMS', items });
+      return;
+    }
+    const file = files[0];
+    if (!file) return;
+    const mediaType = detectMediaType(file);
+    if (mediaType === 'video') {
+      const videoElement = await loadVideoFile(file);
+      dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
+    } else if (mediaType === 'glb') {
+      const glbUrl = URL.createObjectURL(file);
+      dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
+    } else {
+      const imageData = await loadImageFile(file);
+      dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
+    }
+  }, [dispatch, state.mode]);
+
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
       <main className="flex-1 overflow-hidden">
-        {mode === 'batch' ? <BatchPanel /> : <GrainCanvas canvasRef={canvasRef} />}
+        {state.mode === 'batch' ? <BatchPanel /> : <GrainCanvas canvasRef={canvasRef} />}
       </main>
       {sidebarOpen && (
         <>
@@ -86,6 +117,13 @@ function GrainNarrowLayout({
             </div>
             {toolSwitcher}
             <div className="flex flex-col gap-4 p-4">
+              <InputSection
+                onFiles={handleFiles}
+                showModeToggle
+
+                multiple={state.mode === 'batch'}
+              />
+
               {/* Per-effect settings */}
               <section>
                 <EffectSettings effect={activeEffect} />
@@ -97,10 +135,8 @@ function GrainNarrowLayout({
 
               {/* Export */}
               <ExportPanel
-                format={exportFormat}
-                onFormatChange={setFormat}
                 onDownload={download}
-                disabled={!sourceImage}
+                disabled={!state.sourceImage}
               />
             </div>
           </div>

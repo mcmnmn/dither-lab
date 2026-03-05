@@ -1,57 +1,75 @@
 import { useCallback } from 'react';
-import { useGrainState, useGrainDispatch } from '../state/grain-context';
 import { useAppState } from '../../state/app-context';
-import type { GrainExportFormat } from '../state/types';
+import type { ExportFormat } from '../../state/types';
 
 export function useGrainExport(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
-  const { exportFormat } = useGrainState();
-  const { fileName } = useAppState();
-  const dispatch = useGrainDispatch();
-
-  const setFormat = useCallback(
-    (format: GrainExportFormat) => {
-      dispatch({ type: 'GRAIN_SET_EXPORT_FORMAT', format });
-    },
-    [dispatch]
-  );
+  const { fileName, exportFormat, exportScale } = useAppState();
 
   const download = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const mimeMap: Record<GrainExportFormat, string> = {
+    const mimeMap: Record<ExportFormat, string> = {
       png: 'image/png',
-      jpeg: 'image/jpeg',
-      gif: 'image/png', // GIF export not supported via canvas — fallback to PNG
+      jpg: 'image/jpeg',
+      webp: 'image/webp',
+      gif: 'image/png', // GIF export not natively supported — fallback to PNG
     };
 
-    const extMap: Record<GrainExportFormat, string> = {
+    const extMap: Record<ExportFormat, string> = {
       png: '.png',
-      jpeg: '.jpg',
+      jpg: '.jpg',
+      webp: '.webp',
       gif: '.png',
     };
 
     const mime = mimeMap[exportFormat];
     const ext = extMap[exportFormat];
-    const quality = exportFormat === 'jpeg' ? 0.92 : undefined;
+    const quality = (exportFormat === 'jpg' || exportFormat === 'webp') ? 0.92 : undefined;
+    const baseName = fileName ? fileName.replace(/\.[^.]+$/, '') : 'effect-export';
 
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const baseName = fileName ? fileName.replace(/\.[^.]+$/, '') : 'grain-export';
-        a.href = url;
-        a.download = `${baseName}${ext}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      },
-      mime,
-      quality
-    );
-  }, [canvasRef, exportFormat, fileName]);
+    // Apply export scale
+    if (exportScale > 1) {
+      const scaled = document.createElement('canvas');
+      scaled.width = canvas.width * exportScale;
+      scaled.height = canvas.height * exportScale;
+      const ctx = scaled.getContext('2d')!;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(canvas, 0, 0, scaled.width, scaled.height);
 
-  return { exportFormat, setFormat, download };
+      scaled.toBlob(
+        (blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${baseName}${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        mime,
+        quality
+      );
+    } else {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${baseName}${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        mime,
+        quality
+      );
+    }
+  }, [canvasRef, exportFormat, exportScale, fileName]);
+
+  return { download };
 }

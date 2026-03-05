@@ -5,8 +5,7 @@ import type { MeshPreset } from '../data/presets';
 const THUMB_W = 120;
 const THUMB_H = 80;
 
-const DEFAULT_EFFECTS = { blur: 40, intensity: 80, smoothness: 60 };
-const DEFAULT_NOISE = { amount: 0, scale: 50 };
+const DEFAULT_EFFECTS = { intensity: 75, smoothness: 75, blendMode: 'screen' as const };
 
 interface PresetThumbnailProps {
   preset: MeshPreset;
@@ -27,8 +26,7 @@ export function PresetThumbnail({ preset, isSelected, onClick }: PresetThumbnail
     canvas.height = THUMB_H;
 
     const effects = { ...DEFAULT_EFFECTS, ...preset.effects };
-    const noise = { ...DEFAULT_NOISE, ...preset.noise };
-    renderMeshGradient(ctx, THUMB_W, THUMB_H, preset.nodes, preset.bgColor, effects, noise);
+    renderMeshGradient(ctx, THUMB_W, THUMB_H, preset.nodes, preset.bgColor, effects);
   }, [preset]);
 
   return (

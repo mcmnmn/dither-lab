@@ -17,11 +17,10 @@ export function PresetsPanel() {
         nodes: preset.nodes.map(n => ({ ...n })),
         bgColor: preset.bgColor,
         ...(preset.effects ? { effects: { ...state.effects, ...preset.effects } } : {}),
-        ...(preset.noise ? { noise: { ...state.noise, ...preset.noise } } : {}),
       },
     });
     setSelectedId(preset.id);
-  }, [dispatch, state.effects, state.noise]);
+  }, [dispatch, state.effects]);
 
   return (
     <fieldset className="retro-section">

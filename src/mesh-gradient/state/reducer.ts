@@ -11,7 +11,6 @@ function takeSnapshot(state: MeshGradientState): MeshSettingsSnapshot {
     nodes: state.nodes.map(n => ({ ...n })),
     bgColor: state.bgColor,
     effects: { ...state.effects },
-    noise: { ...state.noise },
   };
 }
 
@@ -21,7 +20,6 @@ function restoreSnapshot(state: MeshGradientState, snap: MeshSettingsSnapshot): 
     nodes: snap.nodes.map(n => ({ ...n })),
     bgColor: snap.bgColor,
     effects: { ...snap.effects },
-    noise: { ...snap.noise },
   };
 }
 
@@ -62,9 +60,6 @@ export function meshGradientReducer(
 
     case 'MG_UPDATE_EFFECTS':
       return { ...state, effects: { ...state.effects, ...action.effects } };
-
-    case 'MG_UPDATE_NOISE':
-      return { ...state, noise: { ...state.noise, ...action.noise } };
 
     case 'MG_TOGGLE_DARK_PREVIEW':
       return { ...state, darkPreview: !state.darkPreview };

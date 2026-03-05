@@ -1,4 +1,4 @@
-import type { MeshNode, MeshEffects, MeshNoise } from '../state/types';
+import type { MeshNode, MeshEffects } from '../state/types';
 
 export interface MeshPreset {
   id: string;
@@ -6,7 +6,6 @@ export interface MeshPreset {
   nodes: MeshNode[];
   bgColor: string;
   effects?: Partial<MeshEffects>;
-  noise?: Partial<MeshNoise>;
 }
 
 export const MESH_PRESETS: MeshPreset[] = [
@@ -20,7 +19,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.85, y: 0.65, color: '#ffc93c' },
     ],
     bgColor: '#1a1a2e',
-    effects: { blur: 45, intensity: 85, smoothness: 65 },
+    effects: { intensity: 75, smoothness: 75, blendMode: 'screen' },
   },
   {
     id: 'ocean-deep',
@@ -32,7 +31,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.7, y: 0.7, color: '#90e0ef' },
     ],
     bgColor: '#03045e',
-    effects: { blur: 50, intensity: 80, smoothness: 70 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'screen' },
   },
   {
     id: 'northern-lights',
@@ -44,7 +43,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.4, y: 0.85, color: '#7209b7' },
     ],
     bgColor: '#0d0221',
-    effects: { blur: 55, intensity: 75, smoothness: 75 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'screen' },
   },
   {
     id: 'cotton-candy',
@@ -56,7 +55,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.2, y: 0.65, color: '#a2d2ff' },
     ],
     bgColor: '#ffffff',
-    effects: { blur: 50, intensity: 90, smoothness: 80 },
+    effects: { intensity: 75, smoothness: 85, blendMode: 'normal' },
   },
   {
     id: 'forest-mist',
@@ -68,7 +67,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.85, y: 0.7, color: '#52b788' },
     ],
     bgColor: '#0b1a0f',
-    effects: { blur: 45, intensity: 70, smoothness: 65 },
+    effects: { intensity: 65, smoothness: 75, blendMode: 'screen' },
   },
   {
     id: 'neon-city',
@@ -80,7 +79,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.85, y: 0.7, color: '#ff006e' },
     ],
     bgColor: '#10002b',
-    effects: { blur: 40, intensity: 90, smoothness: 55 },
+    effects: { intensity: 75, smoothness: 70, blendMode: 'screen' },
   },
   {
     id: 'lavender-dream',
@@ -92,7 +91,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.8, y: 0.8, color: '#7b2cbf' },
     ],
     bgColor: '#240046',
-    effects: { blur: 50, intensity: 80, smoothness: 70 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'screen' },
   },
   {
     id: 'golden-hour',
@@ -104,7 +103,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.15, y: 0.8, color: '#dc2f02' },
     ],
     bgColor: '#370617',
-    effects: { blur: 45, intensity: 85, smoothness: 60 },
+    effects: { intensity: 75, smoothness: 75, blendMode: 'screen' },
   },
   {
     id: 'arctic-frost',
@@ -116,7 +115,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.85, y: 0.65, color: '#0096c7' },
     ],
     bgColor: '#e8f4f8',
-    effects: { blur: 55, intensity: 75, smoothness: 80 },
+    effects: { intensity: 70, smoothness: 85, blendMode: 'normal' },
   },
   {
     id: 'cherry-blossom',
@@ -128,7 +127,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.8, y: 0.7, color: '#fff0f3' },
     ],
     bgColor: '#1a0005',
-    effects: { blur: 50, intensity: 80, smoothness: 70 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'screen' },
   },
   {
     id: 'deep-space',
@@ -140,8 +139,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.25, y: 0.6, color: '#7b2cbf' },
     ],
     bgColor: '#0a0012',
-    effects: { blur: 60, intensity: 70, smoothness: 80 },
-    noise: { amount: 15, scale: 40 },
+    effects: { intensity: 65, smoothness: 85, blendMode: 'screen' },
   },
   {
     id: 'tropical',
@@ -153,7 +151,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.85, y: 0.6, color: '#118ab2' },
     ],
     bgColor: '#073b4c',
-    effects: { blur: 40, intensity: 85, smoothness: 60 },
+    effects: { intensity: 75, smoothness: 75, blendMode: 'screen' },
   },
   {
     id: 'monochrome',
@@ -165,7 +163,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.8, y: 0.65, color: '#e9ecef' },
     ],
     bgColor: '#212529',
-    effects: { blur: 50, intensity: 75, smoothness: 70 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'screen' },
   },
   {
     id: 'fire-storm',
@@ -177,7 +175,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.75, y: 0.7, color: '#dc2f02' },
     ],
     bgColor: '#1a0000',
-    effects: { blur: 40, intensity: 90, smoothness: 55 },
+    effects: { intensity: 75, smoothness: 70, blendMode: 'screen' },
   },
   {
     id: 'mint-chocolate',
@@ -189,7 +187,7 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.8, y: 0.7, color: '#22577a' },
     ],
     bgColor: '#1a120b',
-    effects: { blur: 45, intensity: 80, smoothness: 65 },
+    effects: { intensity: 70, smoothness: 75, blendMode: 'screen' },
   },
   {
     id: 'peach-sorbet',
@@ -201,6 +199,6 @@ export const MESH_PRESETS: MeshPreset[] = [
       { id: '4', x: 0.15, y: 0.65, color: '#b5838d' },
     ],
     bgColor: '#fff5f0',
-    effects: { blur: 50, intensity: 85, smoothness: 75 },
+    effects: { intensity: 70, smoothness: 80, blendMode: 'normal' },
   },
 ];

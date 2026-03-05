@@ -1,6 +1,7 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useGrainState } from '../state/grain-context';
 import { useAppState, useAppDispatch } from '../../state/app-context';
+import { useZoomPan } from '../../hooks/use-zoom-pan';
 import { isWebGPUSupported } from '../gpu/device';
 import { useGrainEngine } from '../hooks/use-grain-engine';
 import { DropZone } from '../../components/common/DropZone';
@@ -9,6 +10,7 @@ import { GlbViewer } from '../../components/canvas/GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { CanvasToolbar } from '../../components/common/CanvasToolbar';
+import { cropImageData } from '../../utils/crop';
 
 interface GrainCanvasProps {
   canvasRef?: React.RefObject<HTMLCanvasElement | null>;
@@ -18,6 +20,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   const grainState = useGrainState();
   const appState = useAppState();
   const appDispatch = useAppDispatch();
+  const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useZoomPan();
   const internalCanvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = externalCanvasRef ?? internalCanvasRef;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +31,19 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   // Initialize the GPU engine (only runs when canvas is in DOM and GPU is available)
   useGrainEngine(gpuSupported ? canvasRef : { current: null }, appState.sourceImage, renderToken, appState.sourceVideo);
 
-  // Resize canvas — fit source image aspect ratio within container
+  // Compute cropped dimensions for aspect-ratio fitting
+  const croppedDims = useMemo(() => {
+    if (appState.sourceImage) {
+      const cropped = cropImageData(appState.sourceImage, appState.cropAspectRatio);
+      return { width: cropped.width, height: cropped.height };
+    }
+    if (appState.sourceVideo) {
+      return { width: appState.sourceVideo.videoWidth, height: appState.sourceVideo.videoHeight };
+    }
+    return null;
+  }, [appState.sourceImage, appState.sourceVideo, appState.cropAspectRatio]);
+
+  // Resize canvas — fit cropped image aspect ratio within container
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -41,15 +56,9 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       let fitW = cw;
       let fitH = ch;
 
-      // Get source dimensions from image or video
-      const srcW = appState.sourceImage?.width ?? appState.sourceVideo?.videoWidth;
-      const srcH = appState.sourceImage?.height ?? appState.sourceVideo?.videoHeight;
-
-      if (srcW && srcH) {
-        const imgW = srcW;
-        const imgH = srcH;
+      if (croppedDims) {
         const containerAspect = cw / ch;
-        const imageAspect = imgW / imgH;
+        const imageAspect = croppedDims.width / croppedDims.height;
 
         if (imageAspect > containerAspect) {
           fitW = cw;
@@ -75,7 +84,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
     recalc(); // Initial calculation
 
     return () => observer.disconnect();
-  }, [appState.sourceImage, appState.sourceVideo]);
+  }, [croppedDims]);
 
   // Handle clipboard paste
   useEffect(() => {
@@ -138,14 +147,30 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
     );
   }
 
+  // Compute canvas style with zoom/pan
+  const canvasStyle: React.CSSProperties | undefined = canvasSize ? {
+    width: canvasSize.width,
+    height: canvasSize.height,
+    transform: `translate(-50%, -50%) translate(${appState.panX}px, ${appState.panY}px) scale(${appState.zoom})`,
+    transformOrigin: 'center center',
+  } : undefined;
+
   return (
     <div className="flex h-full flex-col bg-(--color-bg)">
-      <div ref={containerRef} className="relative flex-1 overflow-hidden">
+      <div
+        ref={containerRef}
+        className="relative flex-1 overflow-hidden cursor-grab active:cursor-grabbing"
+        onWheel={handleWheel as unknown as React.WheelEventHandler<HTMLDivElement>}
+        onMouseDown={handleMouseDown as unknown as React.MouseEventHandler<HTMLDivElement>}
+        onMouseMove={handleMouseMove as unknown as React.MouseEventHandler<HTMLDivElement>}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {/* WebGPU canvas — always mounted for GPU init, centered with aspect ratio */}
         <canvas
           ref={canvasRef}
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${hasSource ? '' : 'hidden'}`}
-          style={canvasSize ? { width: canvasSize.width, height: canvasSize.height } : undefined}
+          className={`absolute left-1/2 top-1/2 ${hasSource ? '' : 'hidden'}`}
+          style={canvasStyle}
         />
 
         {/* Video controls overlay */}

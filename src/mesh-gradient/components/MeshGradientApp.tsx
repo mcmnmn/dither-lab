@@ -4,7 +4,6 @@ import { MeshGradientCanvas } from './MeshGradientCanvas';
 import { MeshGradientToolbar } from './MeshGradientToolbar';
 import { ColorsPanel } from './panels/ColorsPanel';
 import { EffectsPanel } from './panels/EffectsPanel';
-import { NoisePanel } from './panels/NoisePanel';
 import { PositionPanel } from './panels/PositionPanel';
 import { CodePanel } from './panels/CodePanel';
 import { PresetsPanel } from './panels/PresetsPanel';
@@ -46,7 +45,6 @@ export function MeshGradientApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwi
                 <PresetsPanel />
                 <ColorsPanel />
                 <EffectsPanel />
-                <NoisePanel />
                 <PositionPanel />
                 {showCodePanel && <CodePanel />}
               </div>
