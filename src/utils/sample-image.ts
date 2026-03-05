@@ -1,20 +1,10 @@
-const FIRST_VISIT_KEY = 'dither-lab-visited';
-
-export function isFirstVisit(): boolean {
-  return !localStorage.getItem(FIRST_VISIT_KEY);
-}
-
-export function markVisited() {
-  localStorage.setItem(FIRST_VISIT_KEY, '1');
-}
-
 /**
  * Load the bundled sample image (public/sample.jpg) as ImageData.
  * Falls back to a procedural gradient if the fetch fails.
  */
 export async function loadSampleImage(): Promise<ImageData> {
   try {
-    const res = await fetch('/sample.jpg');
+    const res = await fetch(`${import.meta.env.BASE_URL}sample.jpg`);
     if (!res.ok) throw new Error('fetch failed');
     const blob = await res.blob();
     const bitmap = await createImageBitmap(blob);

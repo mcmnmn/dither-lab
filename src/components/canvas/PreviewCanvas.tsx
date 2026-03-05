@@ -9,7 +9,7 @@ import { VideoControls } from '../common/VideoControls';
 import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
-import { isFirstVisit, markVisited, loadSampleImage } from '../../utils/sample-image';
+import { loadSampleImage } from '../../utils/sample-image';
 
 const MAX_WARN = 4096;
 const MAX_REJECT = 8192;
@@ -22,15 +22,14 @@ export function PreviewCanvas() {
   const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, resetView, zoomIn, zoomOut } = useZoomPan();
   const [sizeWarning, setSizeWarning] = useState<string | null>(null);
 
-  // Load sample image on first visit
+  // Preload sample image when no source is set
   useEffect(() => {
-    if (!state.sourceImage && isFirstVisit()) {
+    if (!state.sourceImage && !state.sourceVideo && !state.sourceGlbUrl) {
       loadSampleImage().then(sample => {
         dispatch({ type: 'SET_SOURCE', imageData: sample, file: null, fileName: 'sample.jpg' });
-        markVisited();
       });
     }
-  }, [state.sourceImage, dispatch]);
+  }, []);
 
   const handleFiles = useCallback(async (files: File[]) => {
     const file = files[0];
