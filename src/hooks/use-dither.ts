@@ -3,6 +3,7 @@ import { useAppState, useAppDispatch } from '../state/app-context';
 import { processImage } from '../services/dither-engine';
 import { PALETTE_PRESETS } from '../palette/presets';
 import { downscaleImageData } from '../utils/image-io';
+import { cropImageData } from '../utils/crop';
 
 const PREVIEW_MAX_DIM = 1024;
 const DEBOUNCE_MS = 100;
@@ -21,8 +22,9 @@ export function useDither() {
 
     dispatch({ type: 'SET_PROCESSING', processing: true });
 
-    // Downscale for preview
-    const previewData = downscaleImageData(state.sourceImage, PREVIEW_MAX_DIM);
+    // Crop then downscale for preview
+    const cropped = cropImageData(state.sourceImage, state.cropAspectRatio);
+    const previewData = downscaleImageData(cropped, PREVIEW_MAX_DIM);
 
     // Resolve preset colors
     let presetColors: number[][] | undefined;
@@ -52,6 +54,7 @@ export function useDither() {
     }
   }, [
     state.sourceImage,
+    state.cropAspectRatio,
     state.algorithmId,
     state.paletteMode,
     state.presetId,

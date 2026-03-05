@@ -6,9 +6,10 @@ interface SideBySideProps {
   zoom: number;
   panX: number;
   panY: number;
+  bgColor: string;
 }
 
-export function SideBySide({ original, result, zoom, panX, panY }: SideBySideProps) {
+export function SideBySide({ original, result, zoom, panX, panY, bgColor }: SideBySideProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const leftCanvasRef = useRef<HTMLCanvasElement>(null);
   const rightCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,8 +32,10 @@ export function SideBySide({ original, result, zoom, panX, panY }: SideBySidePro
     const x = (containerWidth - drawW) / 2 + panX;
     const y = (containerHeight - drawH) / 2 + panY;
 
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(x, y, drawW, drawH);
     ctx.drawImage(tmp, x, y, drawW, drawH);
-  }, [zoom, panX, panY]);
+  }, [zoom, panX, panY, bgColor]);
 
   const redraw = useCallback(() => {
     const container = containerRef.current;

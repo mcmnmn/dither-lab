@@ -6,9 +6,10 @@ interface ComparisonSliderProps {
   zoom: number;
   panX: number;
   panY: number;
+  bgColor: string;
 }
 
-export function ComparisonSlider({ original, result, zoom, panX, panY }: ComparisonSliderProps) {
+export function ComparisonSlider({ original, result, zoom, panX, panY, bgColor }: ComparisonSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
   const resultCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -44,8 +45,10 @@ export function ComparisonSlider({ original, result, zoom, panX, panY }: Compari
     const x = (cw - drawW) / 2 + panX;
     const y = (ch - drawH) / 2 + panY;
 
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(x, y, drawW, drawH);
     ctx.drawImage(tmp, x, y, drawW, drawH);
-  }, [zoom, panX, panY]);
+  }, [zoom, panX, panY, bgColor]);
 
   const redraw = useCallback((cw: number, ch: number) => {
     // Use result dimensions as the reference so both images render identically sized

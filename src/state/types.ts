@@ -7,6 +7,7 @@ export type ExportFormat = 'png' | 'jpg' | 'gif' | 'webp';
 export type ThemeId = 'butterlite' | 'noir' | 'vt320' | 'cassette';
 export type ToolId = 'dither' | 'grain' | 'gradient';
 export type SourceMediaType = 'image' | 'video' | 'glb';
+export type CropAspectRatio = 'original' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
 
 export interface BatchItem {
   id: string;
@@ -47,6 +48,8 @@ export interface AppState {
   panX: number;
   panY: number;
   showPixelGrid: boolean;
+  cropAspectRatio: CropAspectRatio;
+  bgColor: string;
 
   // Result
   resultImage: ImageData | null;
@@ -115,4 +118,6 @@ export type AppAction =
   | { type: 'SET_BATCH_PROCESSING'; processing: boolean }
   | { type: 'SET_BATCH_PROGRESS'; progress: number }
   | { type: 'SET_ACTIVE_TOOL'; tool: ToolId }
+  | { type: 'SET_CROP_ASPECT_RATIO'; ratio: CropAspectRatio }
+  | { type: 'SET_BG_COLOR'; color: string }
   | { type: 'LOAD_STATE'; state: Partial<AppState> };

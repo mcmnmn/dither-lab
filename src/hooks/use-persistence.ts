@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppState, useAppDispatch } from '../state/app-context';
-import type { ThemeId, ToolId } from '../state/types';
+import type { ThemeId, ToolId, CropAspectRatio } from '../state/types';
 
 const STORAGE_KEY = 'dither-lab-settings';
 
@@ -19,6 +19,8 @@ interface PersistedSettings {
   exportScale: number;
   theme?: string;
   activeTool?: string;
+  bgColor?: string;
+  cropAspectRatio?: string;
   darkMode?: boolean; // legacy migration
 }
 
@@ -64,6 +66,8 @@ export function usePersistence() {
             exportScale: parsed.exportScale,
             theme,
             activeTool,
+            ...(parsed.bgColor ? { bgColor: parsed.bgColor } : {}),
+            ...(parsed.cropAspectRatio ? { cropAspectRatio: parsed.cropAspectRatio as CropAspectRatio } : {}),
           },
         });
       }
@@ -86,6 +90,8 @@ export function usePersistence() {
       exportScale: state.exportScale,
       theme: state.theme,
       activeTool: state.activeTool,
+      bgColor: state.bgColor,
+      cropAspectRatio: state.cropAspectRatio,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [
@@ -100,5 +106,7 @@ export function usePersistence() {
     state.exportScale,
     state.theme,
     state.activeTool,
+    state.bgColor,
+    state.cropAspectRatio,
   ]);
 }

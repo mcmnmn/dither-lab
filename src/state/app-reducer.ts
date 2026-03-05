@@ -1,4 +1,4 @@
-import type { AppState, AppAction, SettingsSnapshot, ThemeId, ToolId } from './types';
+import type { AppState, AppAction, SettingsSnapshot, ThemeId, ToolId, CropAspectRatio } from './types';
 
 const MAX_HISTORY = 50;
 
@@ -30,7 +30,7 @@ export const initialState: AppState = {
   sourceGlbUrl: null,
   sourceFile: null,
   fileName: '',
-  algorithmId: 'floyd-steinberg',
+  algorithmId: 'atkinson',
   paletteMode: 'preset',
   presetId: 'bw-dither',
   manualColors: [[0, 0, 0], [255, 255, 255]],
@@ -44,6 +44,8 @@ export const initialState: AppState = {
   panX: 0,
   panY: 0,
   showPixelGrid: false,
+  cropAspectRatio: 'original' as CropAspectRatio,
+  bgColor: '#000000',
   resultImage: null,
   processing: false,
   processingTime: 0,
@@ -72,6 +74,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         sourceFile: action.file,
         fileName: action.fileName,
         resultImage: null,
+        cropAspectRatio: 'original' as CropAspectRatio,
         zoom: 1,
         panX: 0,
         panY: 0,
@@ -236,6 +239,12 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
     case 'SET_BATCH_PROGRESS':
       return { ...state, batchProgress: action.progress };
+
+    case 'SET_CROP_ASPECT_RATIO':
+      return { ...state, cropAspectRatio: action.ratio, resultImage: null };
+
+    case 'SET_BG_COLOR':
+      return { ...state, bgColor: action.color };
 
     case 'LOAD_STATE':
       return { ...state, ...action.state };

@@ -5,6 +5,7 @@ import { OutputSettings } from './OutputSettings';
 import { exportSingle } from '../../utils/export';
 import { processImage } from '../../services/dither-engine';
 import { PALETTE_PRESETS } from '../../palette/presets';
+import { cropImageData } from '../../utils/crop';
 
 export function Sidebar() {
   const state = useAppState();
@@ -19,8 +20,10 @@ export function Sidebar() {
       presetColors = preset?.colors;
     }
 
+    const cropped = cropImageData(state.sourceImage, state.cropAspectRatio);
+
     const result = processImage({
-      imageData: state.sourceImage,
+      imageData: cropped,
       settings: {
         algorithmId: state.algorithmId,
         paletteMode: state.paletteMode,

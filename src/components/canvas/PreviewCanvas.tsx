@@ -1,8 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { useAppState, useAppDispatch } from '../../state/app-context';
 import { useZoomPan } from '../../hooks/use-zoom-pan';
-import { ComparisonSlider } from './ComparisonSlider';
-import { SideBySide } from './SideBySide';
 import { DropZone } from '../common/DropZone';
 import { VideoOverlay } from './VideoOverlay';
 import { VideoControls } from '../common/VideoControls';
@@ -10,6 +8,8 @@ import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { loadSampleImage } from '../../utils/sample-image';
+import { BgColorButton } from './BgColorButton';
+import type { CropAspectRatio } from '../../state/types';
 
 const MAX_WARN = 4096;
 const MAX_REJECT = 8192;
@@ -84,10 +84,8 @@ export function PreviewCanvas() {
     return () => window.removeEventListener('paste', handlePaste);
   }, [handleFiles]);
 
-  // Draw canvas (for toggle mode and default)
+  // Draw canvas
   useEffect(() => {
-    if (state.comparisonMode === 'slider' || state.comparisonMode === 'side-by-side') return;
-
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -99,12 +97,10 @@ export function PreviewCanvas() {
     const ctx = canvas.getContext('2d')!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let imageData: ImageData | null;
-    if (state.comparisonMode === 'toggle' && state.showOriginal && state.sourceImage) {
-      imageData = state.sourceImage;
-    } else {
-      imageData = state.resultImage;
-    }
+    // Show original when Space is held (toggle mode)
+    const imageData = (state.showOriginal && state.sourceImage)
+      ? state.sourceImage
+      : state.resultImage;
 
     if (!imageData) return;
 
@@ -120,6 +116,8 @@ export function PreviewCanvas() {
     const x = (canvas.width - drawW) / 2 + state.panX;
     const y = (canvas.height - drawH) / 2 + state.panY;
 
+    ctx.fillStyle = state.bgColor;
+    ctx.fillRect(x, y, drawW, drawH);
     ctx.drawImage(tmpCanvas, x, y, drawW, drawH);
 
     // Pixel grid at high zoom
@@ -140,7 +138,7 @@ export function PreviewCanvas() {
         ctx.stroke();
       }
     }
-  }, [state.resultImage, state.sourceImage, state.zoom, state.panX, state.panY, state.showPixelGrid, state.comparisonMode, state.showOriginal]);
+  }, [state.resultImage, state.sourceImage, state.zoom, state.panX, state.panY, state.showPixelGrid, state.showOriginal, state.bgColor]);
 
   // Resize observer
   useEffect(() => {
@@ -220,42 +218,12 @@ export function PreviewCanvas() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {state.comparisonMode === 'slider' && state.sourceImage && state.resultImage ? (
-          <ComparisonSlider
-            original={state.sourceImage}
-            result={state.resultImage}
-            zoom={state.zoom}
-            panX={state.panX}
-            panY={state.panY}
-          />
-        ) : state.comparisonMode === 'side-by-side' && state.sourceImage && state.resultImage ? (
-          <SideBySide
-            original={state.sourceImage}
-            result={state.resultImage}
-            zoom={state.zoom}
-            panX={state.panX}
-            panY={state.panY}
-          />
-        ) : (
-          <>
-            <canvas ref={canvasRef} className="absolute inset-0" />
-            {/* Toggle mode: hold-to-compare overlay + mouse hold support */}
-            {state.comparisonMode === 'toggle' && state.sourceImage && state.resultImage && (
-              <div
-                className="absolute inset-0"
-                onMouseDown={(e) => { e.stopPropagation(); dispatch({ type: 'SET_SHOW_ORIGINAL', show: true }); }}
-                onMouseUp={() => dispatch({ type: 'SET_SHOW_ORIGINAL', show: false })}
-                onMouseLeave={() => dispatch({ type: 'SET_SHOW_ORIGINAL', show: false })}
-                onTouchStart={(e) => { e.stopPropagation(); dispatch({ type: 'SET_SHOW_ORIGINAL', show: true }); }}
-                onTouchEnd={() => dispatch({ type: 'SET_SHOW_ORIGINAL', show: false })}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 border border-white/20 bg-black/60 px-3 py-1 text-xs text-white pointer-events-none">
-                  {state.showOriginal ? 'Original' : 'Dithered'} — hold Space or click to compare
-                </div>
-              </div>
-            )}
-          </>
+        <canvas ref={canvasRef} className="absolute inset-0" />
+        {/* Show label when holding Space to compare */}
+        {state.showOriginal && state.sourceImage && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 border border-white/20 bg-black/60 px-3 py-1 text-xs text-white pointer-events-none">
+            Original — release Space to return
+          </div>
         )}
 
         {/* Loading skeleton */}
@@ -271,22 +239,27 @@ export function PreviewCanvas() {
 
       {/* Bottom toolbar */}
       <div className="flex items-center justify-between border-t border-(--color-border) bg-(--color-bg-secondary) px-3 py-2">
-        <div className="flex items-center gap-0 border border-(--color-border)">
-          {(['slider', 'side-by-side', 'toggle'] as const).map(mode => (
-            <button
-              key={mode}
-              onClick={() => dispatch({ type: 'SET_COMPARISON_MODE', mode })}
-              className={`px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
-                state.comparisonMode === mode
-                  ? 'bg-(--color-accent) text-(--color-accent-text)'
-                  : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
-              }`}
-            >
-              {mode === 'side-by-side' ? 'Side by Side' : mode}
-            </button>
-          ))}
+        {/* LEFT: Aspect ratio buttons + BG color */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0 border border-(--color-border)">
+            {(['original', '16:9', '4:3', '1:1', '3:4', '9:16'] as const satisfies readonly CropAspectRatio[]).map(ratio => (
+              <button
+                key={ratio}
+                onClick={() => dispatch({ type: 'SET_CROP_ASPECT_RATIO', ratio })}
+                className={`px-2 py-1 text-xs font-medium uppercase transition-colors ${
+                  state.cropAspectRatio === ratio
+                    ? 'bg-(--color-accent) text-(--color-accent-text)'
+                    : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
+                }`}
+              >
+                {ratio === 'original' ? 'Original' : ratio}
+              </button>
+            ))}
+          </div>
+          <BgColorButton />
         </div>
 
+        {/* RIGHT: Grid + Zoom controls */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => dispatch({ type: 'TOGGLE_PIXEL_GRID' })}
