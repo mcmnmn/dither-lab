@@ -70,29 +70,11 @@ export function useGrainEngine(
     state.pixelSort,
     state.crosshatch,
     state.vhs,
-    state.matrixRain,
     state.processing,
     state.postProcessing,
     renderToken,
     dispatch,
   ]);
-
-  // Animation loop for time-based effects (matrix rain)
-  useEffect(() => {
-    if (!pipelineRef.current || !sourceImage) return;
-    if (state.activeEffect !== 'matrix-rain') return;
-
-    let animId: number;
-    const loop = () => {
-      if (pipelineRef.current) {
-        pipelineRef.current.render(state);
-      }
-      animId = requestAnimationFrame(loop);
-    };
-    animId = requestAnimationFrame(loop);
-
-    return () => cancelAnimationFrame(animId);
-  }, [sourceImage, state]);
 
   // Video frame loop — upload video frames to GPU and render each frame
   useEffect(() => {

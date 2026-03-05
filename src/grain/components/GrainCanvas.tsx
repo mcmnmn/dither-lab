@@ -8,6 +8,7 @@ import { VideoControls } from '../../components/common/VideoControls';
 import { GlbViewer } from '../../components/canvas/GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
+import { CanvasToolbar } from '../../components/common/CanvasToolbar';
 
 interface GrainCanvasProps {
   canvasRef?: React.RefObject<HTMLCanvasElement | null>;
@@ -138,47 +139,51 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   }
 
   return (
-    <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-(--color-bg)">
-      {/* WebGPU canvas — always mounted for GPU init, centered with aspect ratio */}
-      <canvas
-        ref={canvasRef}
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${hasSource ? '' : 'hidden'}`}
-        style={canvasSize ? { width: canvasSize.width, height: canvasSize.height } : undefined}
-      />
+    <div className="flex h-full flex-col bg-(--color-bg)">
+      <div ref={containerRef} className="relative flex-1 overflow-hidden">
+        {/* WebGPU canvas — always mounted for GPU init, centered with aspect ratio */}
+        <canvas
+          ref={canvasRef}
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${hasSource ? '' : 'hidden'}`}
+          style={canvasSize ? { width: canvasSize.width, height: canvasSize.height } : undefined}
+        />
 
-      {/* Video controls overlay */}
-      {appState.sourceVideo && (
-        <VideoControls video={appState.sourceVideo} />
-      )}
+        {/* Video controls overlay */}
+        {appState.sourceVideo && (
+          <VideoControls video={appState.sourceVideo} />
+        )}
 
-      {/* Drop zone overlay when no source */}
-      {!hasSource && (
-        <DropZone onFiles={handleFiles} className="absolute inset-0 flex cursor-pointer items-center justify-center">
-          <div className="text-center">
-            <div className="mb-1 font-mono text-lg text-(--color-border)">[ &nbsp;+ &nbsp;]</div>
-            <p className="font-mono text-xs text-(--color-text-secondary)">
-              Drop a file here, click to browse, or paste from clipboard
-            </p>
-            <p className="mt-1 font-mono text-[10px] text-(--color-text-secondary)/60">
-              PNG, JPG, WebP, GIF, MP4, WebM, GLB
-            </p>
+        {/* Drop zone overlay when no source */}
+        {!hasSource && (
+          <DropZone onFiles={handleFiles} className="absolute inset-0 flex cursor-pointer items-center justify-center">
+            <div className="text-center">
+              <div className="mb-1 font-mono text-lg text-(--color-border)">[ &nbsp;+ &nbsp;]</div>
+              <p className="font-mono text-xs text-(--color-text-secondary)">
+                Drop a file here, click to browse, or paste from clipboard
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-(--color-text-secondary)/60">
+                PNG, JPG, WebP, GIF, MP4, WebM, GLB
+              </p>
+            </div>
+          </DropZone>
+        )}
+
+        {/* GPU error banner */}
+        {grainState.gpuError && (
+          <div className="absolute inset-x-0 bottom-0 bg-red-900/80 px-4 py-2 text-xs text-red-200">
+            GPU Error: {grainState.gpuError}
           </div>
-        </DropZone>
-      )}
+        )}
 
-      {/* GPU error banner */}
-      {grainState.gpuError && (
-        <div className="absolute inset-x-0 bottom-0 bg-red-900/80 px-4 py-2 text-xs text-red-200">
-          GPU Error: {grainState.gpuError}
-        </div>
-      )}
+        {/* Render time indicator */}
+        {hasSource && grainState.renderTime > 0 && (
+          <div className="pointer-events-none absolute bottom-2 right-2 font-mono text-[10px] text-(--color-text-secondary)/50">
+            {grainState.renderTime.toFixed(1)}ms
+          </div>
+        )}
+      </div>
 
-      {/* Render time indicator */}
-      {hasSource && grainState.renderTime > 0 && (
-        <div className="pointer-events-none absolute bottom-2 right-2 font-mono text-[10px] text-(--color-text-secondary)/50">
-          {grainState.renderTime.toFixed(1)}ms
-        </div>
-      )}
+      <CanvasToolbar />
     </div>
   );
 }

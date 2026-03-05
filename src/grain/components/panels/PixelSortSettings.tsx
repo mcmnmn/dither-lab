@@ -23,20 +23,24 @@ export function PixelSortSettings() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary)">
-        Pixel Sort
+    <div className="flex flex-col gap-4">
+      <div className="retro-section">
+        <span className="retro-section-label">Pixel Sort</span>
+        <div className="space-y-3">
+          <GrainDropdown label="Direction" value={pixelSort.direction} options={DIRECTION_OPTIONS} onChange={v => update({ direction: v as PixelSortSettingsType['direction'] })} />
+          <GrainDropdown label="Sort By" value={pixelSort.sortBy} options={SORT_BY_OPTIONS} onChange={v => update({ sortBy: v as PixelSortSettingsType['sortBy'] })} />
+          <GrainSlider label="Threshold" value={pixelSort.threshold} min={0} max={100} step={1} onChange={v => update({ threshold: v })} />
+          <GrainSlider label="Randomness" value={pixelSort.randomness} min={0} max={100} step={1} onChange={v => update({ randomness: v })} />
+        </div>
       </div>
-      <GrainDropdown label="Direction" value={pixelSort.direction} options={DIRECTION_OPTIONS} onChange={v => update({ direction: v as PixelSortSettingsType['direction'] })} />
-      <GrainDropdown label="Sort By" value={pixelSort.sortBy} options={SORT_BY_OPTIONS} onChange={v => update({ sortBy: v as PixelSortSettingsType['sortBy'] })} />
-      <GrainSlider label="Threshold" value={pixelSort.threshold} min={0} max={100} step={1} onChange={v => update({ threshold: v })} />
-      <GrainSlider label="Randomness" value={pixelSort.randomness} min={0} max={100} step={1} onChange={v => update({ randomness: v })} />
 
-      <div className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary)">
-        Adjustments
+      <div className="retro-section">
+        <span className="retro-section-label">Adjustments</span>
+        <div className="space-y-3">
+          <GrainSlider label="Brightness" value={pixelSort.brightness} min={-100} max={100} step={1} onChange={v => update({ brightness: v })} />
+          <GrainSlider label="Contrast" value={pixelSort.contrast} min={-100} max={100} step={1} onChange={v => update({ contrast: v })} />
+        </div>
       </div>
-      <GrainSlider label="Brightness" value={pixelSort.brightness} min={-100} max={100} step={1} onChange={v => update({ brightness: v })} />
-      <GrainSlider label="Contrast" value={pixelSort.contrast} min={-100} max={100} step={1} onChange={v => update({ contrast: v })} />
     </div>
   );
 }

@@ -3,12 +3,13 @@ interface GrainDropdownProps {
   value: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
+  labelWidth?: string;
 }
 
-export function GrainDropdown({ label, value, options, onChange }: GrainDropdownProps) {
+export function GrainDropdown({ label, value, options, onChange, labelWidth = 'w-24' }: GrainDropdownProps) {
   return (
     <div className="flex items-center gap-2">
-      <label className="w-24 flex-shrink-0 text-[10px] uppercase tracking-wider text-(--color-text-secondary)">
+      <label className={`${labelWidth} flex-shrink-0 text-[10px] uppercase tracking-wider text-(--color-text-secondary)`}>
         {label}
       </label>
       <select

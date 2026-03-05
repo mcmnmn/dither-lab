@@ -8,7 +8,7 @@ import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
 import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { loadSampleImage } from '../../utils/sample-image';
-import type { CropAspectRatio } from '../../state/types';
+import { CanvasToolbar } from '../common/CanvasToolbar';
 
 const MAX_WARN = 4096;
 const MAX_REJECT = 8192;
@@ -18,7 +18,7 @@ export function PreviewCanvas() {
   const dispatch = useAppDispatch();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp, resetView, zoomIn, zoomOut } = useZoomPan();
+  const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useZoomPan();
   const [sizeWarning, setSizeWarning] = useState<string | null>(null);
 
   // Preload sample image when no source is set
@@ -236,39 +236,7 @@ export function PreviewCanvas() {
         )}
       </div>
 
-      {/* Bottom toolbar */}
-      <div className="flex items-center justify-between border-t border-(--color-border) bg-(--color-bg-secondary) px-3 py-2">
-        {/* LEFT: Aspect ratio buttons + BG color */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-0 border border-(--color-border)">
-            {(['original', '16:9', '4:3', '1:1', '3:4', '9:16'] as const satisfies readonly CropAspectRatio[]).map(ratio => (
-              <button
-                key={ratio}
-                onClick={() => dispatch({ type: 'SET_CROP_ASPECT_RATIO', ratio })}
-                className={`px-2 py-1 text-xs font-medium uppercase transition-colors ${
-                  state.cropAspectRatio === ratio
-                    ? 'bg-(--color-accent) text-(--color-accent-text)'
-                    : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'
-                }`}
-              >
-                {ratio === 'original' ? 'Original' : ratio}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* RIGHT: Grid + Zoom controls */}
-        <div className="flex items-center gap-1">
-          <button onClick={zoomOut} className="border border-(--color-border) px-1.5 py-0.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">-</button>
-          <span className="min-w-[3rem] text-center text-xs tabular-nums text-(--color-text-secondary)">
-            {Math.round(state.zoom * 100)}%
-          </span>
-          <button onClick={zoomIn} className="border border-(--color-border) px-1.5 py-0.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">+</button>
-          <button onClick={resetView} className="border border-(--color-border) px-2 py-1 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">
-            Fit
-          </button>
-        </div>
-      </div>
+      <CanvasToolbar />
     </div>
   );
 }

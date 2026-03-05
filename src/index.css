@@ -46,20 +46,6 @@
   --color-accent-text: #0a0a08;
 }
 
-/* ═══════════════════════════════════════════════
-   CASSETTE THEME — green CRT
-   ═══════════════════════════════════════════════ */
-.theme-cassette {
-  --color-bg: #000000;
-  --color-bg-secondary: #001100;
-  --color-bg-tertiary: #002200;
-  --color-text: #00ff41;
-  --color-text-secondary: #006622;
-  --color-border: #003300;
-  --color-accent: #00ff41;
-  --color-accent-hover: #66ff66;
-  --color-accent-text: #000000;
-}
 
 body {
   margin: 0;
@@ -87,6 +73,11 @@ body {
   padding-top: 16px;
   position: relative;
   margin-top: 6px;
+  min-inline-size: 0;
+}
+
+.retro-section > * {
+  min-width: 0;
 }
 
 .retro-section-label {

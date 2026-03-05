@@ -12,15 +12,14 @@ export const TOOLS: ToolDefinition[] = [
   { id: 'dither',      label: 'DITHER',      shortLabel: 'Dither',      available: true },
   { id: 'ascii',       label: 'ASCII',       shortLabel: 'ASCII',       available: true },
   { id: 'halftone',    label: 'HALFTONE',    shortLabel: 'Halftone',    available: true },
-  { id: 'noise-field', label: 'NOISE FIELD', shortLabel: 'Noise Field', available: true },
-  { id: 'pixel-sort',  label: 'PIXEL SORT',  shortLabel: 'Pixel Sort',  available: true },
-  { id: 'crosshatch',  label: 'CROSSHATCH',  shortLabel: 'Crosshatch',  available: true },
-  { id: 'vhs',         label: 'VHS',         shortLabel: 'VHS',         available: true },
-  { id: 'matrix-rain', label: 'MATRIX RAIN', shortLabel: 'Matrix Rain', available: true },
+  { id: 'vhs',         label: 'RETRO',       shortLabel: 'Retro',       available: true },
+  { id: 'color-extractor', label: 'PALETTE',  shortLabel: 'Palette',    available: true },
+  { id: 'mesh-gradient', label: 'MESH',       shortLabel: 'Mesh',       available: true },
+  { id: 'campaign-generator', label: 'CAMPAIGN', shortLabel: 'Campaign', available: true },
 ];
 
 const EFFECT_TOOL_IDS: Set<ToolId> = new Set([
-  'ascii', 'halftone', 'noise-field', 'pixel-sort', 'crosshatch', 'vhs', 'matrix-rain',
+  'ascii', 'halftone', 'vhs',
 ]);
 
 export function getToolById(id: ToolId): ToolDefinition {

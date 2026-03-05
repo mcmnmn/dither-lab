@@ -18,6 +18,29 @@ export function hexToRgb(hex: string): number[] {
 }
 
 /**
+ * Convert HSL values to hex string.
+ */
+export function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+/**
+ * Convert hex color to rgba string with alpha.
+ */
+export function hexToRgba(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
  * Generate evenly spaced grayscale palette.
  */
 export function generateGrayscalePalette(levels: number): number[][] {

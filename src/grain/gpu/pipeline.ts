@@ -8,7 +8,6 @@ import {
   packNoiseFieldUniforms,
   packAsciiUniforms,
   packPixelSortUniforms,
-  packMatrixRainUniforms,
   packPreProcessUniforms,
   packPostProcessUniforms,
   isPreProcessActive,
@@ -24,16 +23,17 @@ import vhsShader from './shaders/vhs.wgsl?raw';
 import noiseFieldShader from './shaders/noise-field.wgsl?raw';
 import asciiShader from './shaders/ascii.wgsl?raw';
 import pixelSortShader from './shaders/pixel-sort.wgsl?raw';
-import matrixRainShader from './shaders/matrix-rain.wgsl?raw';
 import preprocessShader from './shaders/preprocess.wgsl?raw';
 import postprocessShader from './shaders/postprocess.wgsl?raw';
 
 const SHAPE_MAP: Record<string, number> = { circle: 0, diamond: 1, square: 2 };
 const COLOR_MODE_MAP: Record<string, number> = { original: 0, mono: 1 };
-const CHAR_SET_MAP: Record<string, number> = { standard: 0, extended: 1, blocks: 2 };
+const CHAR_SET_MAP: Record<string, number> = {
+  standard: 0, blocks: 1, binary: 2, detailed: 3, minimal: 4,
+  alphabetic: 5, numeric: 6, math: 7, symbols: 8,
+};
 const SORT_BY_MAP: Record<string, number> = { brightness: 0, hue: 1, saturation: 2 };
 const DIRECTION_MAP: Record<string, number> = { horizontal: 0, vertical: 1 };
-const RAIN_DIRECTION_MAP: Record<string, number> = { down: 0, up: 1, left: 2, right: 3 };
 const NOISE_TYPE_MAP: Record<string, number> = { perlin: 0, simplex: 1 };
 
 interface EffectPipeline {
@@ -120,7 +120,6 @@ export class GrainPipeline {
       ['noise-field', noiseFieldShader],
       ['ascii', asciiShader],
       ['pixel-sort', pixelSortShader],
-      ['matrix-rain', matrixRainShader],
     ];
 
     for (const [id, shader] of effectShaders) {
@@ -289,7 +288,8 @@ export class GrainPipeline {
           w, h, s.scale, s.spacing, s.intensity,
           CHAR_SET_MAP[s.charSet] ?? 0, COLOR_MODE_MAP[s.colorMode] ?? 0,
           hexToRgb(s.fgColor), hexToRgb(s.bgColor),
-          0, 0
+          s.brightness, s.contrast, s.saturation, s.hueRotation,
+          s.sharpness, s.gamma
         );
       }
       case 'pixel-sort': {
@@ -298,16 +298,6 @@ export class GrainPipeline {
           w, h, s.threshold, SORT_BY_MAP[s.sortBy] ?? 0,
           DIRECTION_MAP[s.direction] ?? 0, s.randomness,
           s.brightness, s.contrast
-        );
-      }
-      case 'matrix-rain': {
-        const s = state.matrixRain;
-        return packMatrixRainUniforms(
-          w, h, s.cellSize, s.spacing, s.speed, s.trailLength,
-          RAIN_DIRECTION_MAP[s.direction] ?? 0, s.glow, s.bgOpacity,
-          s.brightness, s.contrast, s.threshold,
-          hexToRgb(s.rainColor), this.frameCount / 60.0,
-          CHAR_SET_MAP[s.charSet] ?? 0
         );
       }
       default:

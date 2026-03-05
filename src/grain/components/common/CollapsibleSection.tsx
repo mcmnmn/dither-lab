@@ -10,15 +10,15 @@ export function CollapsibleSection({ title, defaultOpen = true, children }: Coll
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-t border-(--color-border) pt-3">
+    <div className="retro-section">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary) hover:text-(--color-text) transition-colors"
+        className="retro-section-label flex items-center gap-1 cursor-pointer hover:text-(--color-text) transition-colors"
       >
         <span>{title}</span>
         <span className="text-[10px]">{open ? '−' : '+'}</span>
       </button>
-      {open && <div className="mt-2 flex flex-col gap-2">{children}</div>}
+      {open && <div className="flex flex-col gap-2">{children}</div>}
     </div>
   );
 }

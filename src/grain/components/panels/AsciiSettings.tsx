@@ -1,12 +1,18 @@
 import { useGrainState, useGrainDispatch } from '../../state/grain-context';
-import { GrainDial } from '../common/GrainDial';
+import { GrainSlider } from '../common/GrainSlider';
 import { GrainDropdown } from '../common/GrainDropdown';
 import type { AsciiSettings as AsciiSettingsType } from '../../state/types';
 
 const CHAR_SET_OPTIONS = [
   { value: 'standard', label: 'Standard' },
-  { value: 'extended', label: 'Extended' },
   { value: 'blocks', label: 'Blocks' },
+  { value: 'binary', label: 'Binary' },
+  { value: 'detailed', label: 'Detailed' },
+  { value: 'minimal', label: 'Minimal' },
+  { value: 'alphabetic', label: 'Alphabetic' },
+  { value: 'numeric', label: 'Numeric' },
+  { value: 'math', label: 'Math' },
+  { value: 'symbols', label: 'Symbols' },
 ];
 
 const COLOR_MODE_OPTIONS = [
@@ -23,32 +29,46 @@ export function AsciiSettings() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary)">
-        ASCII
+    <div className="flex flex-col gap-4">
+      <div className="retro-section">
+        <span className="retro-section-label">ASCII</span>
+        <div className="space-y-3">
+          <GrainSlider label="Scale" value={ascii.scale} min={1} max={20} step={1} onChange={v => update({ scale: v })} />
+          <GrainSlider label="Spacing" value={ascii.spacing} min={0} max={10} step={0.5} onChange={v => update({ spacing: v })} />
+          <GrainSlider label="Output Width" value={ascii.outputWidth} min={0} max={200} step={10} onChange={v => update({ outputWidth: v })} />
+          <GrainDropdown label="Character Set" value={ascii.charSet} options={CHAR_SET_OPTIONS} onChange={v => update({ charSet: v as AsciiSettingsType['charSet'] })} />
+        </div>
       </div>
-      <GrainDropdown label="Char Set" value={ascii.charSet} options={CHAR_SET_OPTIONS} onChange={v => update({ charSet: v as AsciiSettingsType['charSet'] })} />
-      <GrainDial label="Scale" value={ascii.scale} min={0} max={10} step={1} onChange={v => update({ scale: v })} />
-      <GrainDial label="Spacing" value={ascii.spacing} min={0} max={10} step={1} onChange={v => update({ spacing: v })} />
-      <GrainDial label="Intensity" value={ascii.intensity} min={0} max={10} step={1} onChange={v => update({ intensity: v })} />
 
-      <div className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-(--color-text-secondary)">
-        Color
+      <div className="retro-section">
+        <span className="retro-section-label">Adjustments</span>
+        <div className="space-y-3">
+          <GrainSlider label="Brightness" value={ascii.brightness} min={-100} max={100} step={1} onChange={v => update({ brightness: v })} />
+          <GrainSlider label="Contrast" value={ascii.contrast} min={-100} max={100} step={1} onChange={v => update({ contrast: v })} />
+          <GrainSlider label="Saturation" value={ascii.saturation} min={-100} max={100} step={1} onChange={v => update({ saturation: v })} />
+          <GrainSlider label="Hue Rotation" value={ascii.hueRotation} min={0} max={360} step={1} displayValue={`${ascii.hueRotation}°`} onChange={v => update({ hueRotation: v })} />
+          <GrainSlider label="Sharpness" value={ascii.sharpness} min={0} max={100} step={1} onChange={v => update({ sharpness: v })} />
+          <GrainSlider label="Gamma" value={ascii.gamma} min={0.1} max={3.0} step={0.1} onChange={v => update({ gamma: v })} />
+        </div>
       </div>
-      <GrainDropdown label="Mode" value={ascii.colorMode} options={COLOR_MODE_OPTIONS} onChange={v => update({ colorMode: v as AsciiSettingsType['colorMode'] })} />
-      {ascii.colorMode === 'mono' && (
-        <>
+
+      <div className="retro-section">
+        <span className="retro-section-label">Color</span>
+        <div className="space-y-3">
+          <GrainDropdown label="Mode" value={ascii.colorMode} options={COLOR_MODE_OPTIONS} onChange={v => update({ colorMode: v as AsciiSettingsType['colorMode'] })} />
+          {ascii.colorMode === 'mono' && (
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Character Color</span>
+              <input
+                type="color"
+                value={ascii.fgColor}
+                onChange={e => update({ fgColor: e.target.value })}
+                className="h-6 w-10 cursor-pointer border border-(--color-border) bg-transparent"
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">FG Color</span>
-            <input
-              type="color"
-              value={ascii.fgColor}
-              onChange={e => update({ fgColor: e.target.value })}
-              className="h-6 w-10 cursor-pointer border border-(--color-border) bg-transparent"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">BG Color</span>
+            <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Background</span>
             <input
               type="color"
               value={ascii.bgColor}
@@ -56,8 +76,9 @@ export function AsciiSettings() {
               className="h-6 w-10 cursor-pointer border border-(--color-border) bg-transparent"
             />
           </div>
-        </>
-      )}
+          <GrainSlider label="Intensity" value={ascii.intensity} min={0.1} max={3.0} step={0.1} onChange={v => update({ intensity: v })} />
+        </div>
+      </div>
     </div>
   );
 }

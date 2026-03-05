@@ -3,21 +3,23 @@ import { useGrainState, useGrainDispatch } from '../state/grain-context';
 import type {
   GrainEffectId,
   AsciiSettings,
+  AsciiCharSet,
   HalftoneSettings,
   NoiseFieldSettings,
   PixelSortSettings,
   CrosshatchSettings,
   VhsSettings,
-  MatrixRainSettings,
   ProcessingSettings,
   PostProcessingSettings,
   GrainExportFormat,
 } from '../state/types';
+import { DEFAULT_ASCII } from '../state/defaults';
 
 const STORAGE_KEY = 'grain-lab-settings';
 
-const VALID_EFFECTS: GrainEffectId[] = ['ascii', 'halftone', 'noise-field', 'pixel-sort', 'crosshatch', 'vhs', 'matrix-rain'];
+const VALID_EFFECTS: GrainEffectId[] = ['ascii', 'halftone', 'noise-field', 'pixel-sort', 'crosshatch', 'vhs'];
 const VALID_FORMATS: GrainExportFormat[] = ['png', 'jpeg', 'gif'];
+const VALID_CHAR_SETS: AsciiCharSet[] = ['standard', 'blocks', 'binary', 'detailed', 'minimal', 'alphabetic', 'numeric', 'math', 'symbols'];
 
 interface PersistedGrainSettings {
   activeEffect: GrainEffectId;
@@ -27,7 +29,6 @@ interface PersistedGrainSettings {
   pixelSort: PixelSortSettings;
   crosshatch: CrosshatchSettings;
   vhs: VhsSettings;
-  matrixRain: MatrixRainSettings;
   processing: ProcessingSettings;
   postProcessing: PostProcessingSettings;
   exportFormat: GrainExportFormat;
@@ -66,17 +67,22 @@ export function useGrainPersistence() {
         ? parsed.exportFormat
         : 'png';
 
+      // Migrate old ASCII settings: fill in new fields, fix removed 'extended' charSet
+      const ascii: AsciiSettings = { ...DEFAULT_ASCII, ...parsed.ascii };
+      if (!VALID_CHAR_SETS.includes(ascii.charSet)) {
+        ascii.charSet = 'standard';
+      }
+
       dispatch({
         type: 'GRAIN_LOAD_STATE',
         state: {
           activeEffect,
-          ascii: parsed.ascii,
+          ascii,
           halftone: parsed.halftone,
           noiseField: parsed.noiseField,
           pixelSort: parsed.pixelSort,
           crosshatch: parsed.crosshatch,
           vhs: parsed.vhs,
-          ...(parsed.matrixRain ? { matrixRain: parsed.matrixRain } : {}),
           processing: parsed.processing,
           postProcessing: parsed.postProcessing,
           exportFormat,
@@ -103,7 +109,6 @@ export function useGrainPersistence() {
       pixelSort: state.pixelSort,
       crosshatch: state.crosshatch,
       vhs: state.vhs,
-      matrixRain: state.matrixRain,
       processing: state.processing,
       postProcessing: state.postProcessing,
       exportFormat: state.exportFormat,
@@ -117,7 +122,6 @@ export function useGrainPersistence() {
     state.pixelSort,
     state.crosshatch,
     state.vhs,
-    state.matrixRain,
     state.processing,
     state.postProcessing,
     state.exportFormat,
