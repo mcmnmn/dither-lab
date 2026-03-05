@@ -20,6 +20,7 @@ export function PreviewCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useZoomPan();
   const [sizeWarning, setSizeWarning] = useState<string | null>(null);
+  const [renderToken, setRenderToken] = useState(0);
 
   // Preload sample image when no source is set
   useEffect(() => {
@@ -137,18 +138,14 @@ export function PreviewCanvas() {
         ctx.stroke();
       }
     }
-  }, [state.resultImage, state.sourceImage, state.zoom, state.panX, state.panY, state.showPixelGrid, state.showOriginal, state.bgColor]);
+  }, [state.resultImage, state.sourceImage, state.zoom, state.panX, state.panY, state.showPixelGrid, state.showOriginal, state.bgColor, renderToken]);
 
-  // Resize observer
+  // Resize observer — increment renderToken to trigger redraw after canvas is cleared
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const observer = new ResizeObserver(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = container.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      setRenderToken(t => t + 1);
     });
     observer.observe(container);
     return () => observer.disconnect();

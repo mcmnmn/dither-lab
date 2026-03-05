@@ -9,6 +9,7 @@ import { useGrainExport } from '../hooks/use-grain-export';
 import { ProcessingPanel } from './panels/ProcessingPanel';
 import { PostProcessingPanel } from './panels/PostProcessingPanel';
 import { ExportPanel } from './panels/ExportPanel';
+import { BatchPanel } from '../../components/batch/BatchPanel';
 import type { GrainEffectId } from '../state/types';
 
 interface GrainAppProps {
@@ -22,6 +23,7 @@ interface GrainAppProps {
 export function GrainApp({ effectId, isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: GrainAppProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const grainDispatch = useGrainDispatch();
+  const { mode } = useAppState();
   useGrainPersistence();
 
   // Sync activeEffect from tab selection
@@ -44,7 +46,7 @@ export function GrainApp({ effectId, isNarrow, sidebarOpen, onCloseSidebar, tool
     <div className="flex flex-1 overflow-hidden">
       <GrainRightSidebar canvasRef={canvasRef} />
       <main className="flex-1 overflow-hidden">
-        <GrainCanvas canvasRef={canvasRef} />
+        {mode === 'batch' ? <BatchPanel /> : <GrainCanvas canvasRef={canvasRef} />}
       </main>
     </div>
   );
@@ -62,13 +64,13 @@ function GrainNarrowLayout({
   toolSwitcher: React.ReactNode;
 }) {
   const { activeEffect } = useGrainState();
-  const { sourceImage } = useAppState();
+  const { sourceImage, mode } = useAppState();
   const { exportFormat, setFormat, download } = useGrainExport(canvasRef);
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
       <main className="flex-1 overflow-hidden">
-        <GrainCanvas canvasRef={canvasRef} />
+        {mode === 'batch' ? <BatchPanel /> : <GrainCanvas canvasRef={canvasRef} />}
       </main>
       {sidebarOpen && (
         <>

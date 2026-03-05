@@ -23,14 +23,6 @@ export function campaignGeneratorReducer(
     case 'CG_SET_GENERATING':
       return { ...state, generating: action.generating };
 
-    case 'CG_REGENERATE_IMAGE':
-      return {
-        ...state,
-        campaigns: state.campaigns.map(c =>
-          c.id === action.campaignId ? { ...c, imageUrl: action.imageUrl } : c,
-        ),
-      };
-
     case 'CG_LOAD_STATE':
       return { ...state, ...action.state };
 

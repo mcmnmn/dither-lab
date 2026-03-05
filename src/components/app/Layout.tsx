@@ -236,8 +236,6 @@ export function Layout() {
             onRegisterReplace={handleCeRegisterReplace}
           />
         </ColorExtractorProvider>
-      ) : isEffect && mode === 'batch' ? (
-        <BatchPanel />
       ) : isEffect ? (
         <GrainProvider>
           <GrainApp

@@ -22,7 +22,6 @@ export interface Campaign {
   id: string;
   sections: CampaignSection[];
   inputs: CampaignInputs;
-  imageUrl: string;
 }
 
 export interface CampaignGeneratorState {
@@ -37,5 +36,4 @@ export type CampaignGeneratorAction =
   | { type: 'CG_SET_CAMPAIGNS'; campaigns: Campaign[]; viewMode: 'single' | 'list' }
   | { type: 'CG_UPDATE_CAMPAIGN'; campaignId: string; campaign: Campaign }
   | { type: 'CG_SET_GENERATING'; generating: boolean }
-  | { type: 'CG_REGENERATE_IMAGE'; campaignId: string; imageUrl: string }
   | { type: 'CG_LOAD_STATE'; state: Partial<CampaignGeneratorState> };

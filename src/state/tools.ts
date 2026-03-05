@@ -15,7 +15,7 @@ export const TOOLS: ToolDefinition[] = [
   { id: 'vhs',         label: 'RETRO',       shortLabel: 'Retro',       available: true },
   { id: 'color-extractor', label: 'PALETTE',  shortLabel: 'Palette',    available: true },
   { id: 'mesh-gradient', label: 'MESH',       shortLabel: 'Mesh',       available: true },
-  { id: 'campaign-generator', label: 'CAMPAIGN', shortLabel: 'Campaign', available: true },
+  { id: 'campaign-generator', label: 'COPYGEN',  shortLabel: 'CopyGen',  available: true },
 ];
 
 const EFFECT_TOOL_IDS: Set<ToolId> = new Set([

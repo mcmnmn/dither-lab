@@ -1,4 +1,4 @@
-import type { Campaign, CampaignInputs, CampaignSection, CauseType } from '../state/types';
+import type { Campaign, CampaignInputs, CampaignSection } from '../state/types';
 import {
   pickRandom,
   pickRandomN,
@@ -13,23 +13,6 @@ import {
   getTierNames,
   getTierImpacts,
 } from './templates';
-
-// Curated Picsum image IDs grouped by cause for thematic relevance
-const CAUSE_IMAGE_IDS: Record<CauseType, number[]> = {
-  'environment': [15, 16, 28, 41, 47, 110, 142, 155, 167, 180, 200, 240, 324, 425, 446, 493, 540, 551, 610, 651],
-  'education': [20, 24, 42, 60, 180, 247, 292, 367, 395, 403, 452, 490, 514, 535, 593, 620, 683, 737, 823, 901],
-  'health': [22, 40, 63, 96, 117, 177, 197, 225, 277, 305, 342, 370, 399, 433, 458, 510, 552, 626, 688, 740],
-  'hunger': [30, 48, 75, 102, 112, 163, 225, 292, 312, 326, 349, 388, 429, 447, 488, 527, 562, 597, 641, 698],
-  'housing': [29, 49, 69, 164, 174, 188, 223, 271, 304, 353, 368, 407, 416, 439, 462, 503, 526, 564, 609, 674],
-  'animals': [237, 219, 40, 58, 169, 200, 202, 247, 275, 301, 327, 355, 381, 433, 474, 518, 582, 593, 659, 718],
-  'arts': [36, 65, 119, 145, 175, 193, 203, 257, 280, 310, 338, 366, 392, 420, 445, 487, 519, 549, 603, 654],
-  'disaster-relief': [11, 14, 44, 73, 91, 120, 148, 176, 214, 243, 267, 295, 330, 360, 401, 436, 475, 512, 548, 600],
-};
-
-export function generateImageUrl(cause: CauseType): string {
-  const imageId = pickRandom(CAUSE_IMAGE_IDS[cause]);
-  return `https://picsum.photos/id/${imageId}/800/400`;
-}
 
 function generateOrgName(inputs: CampaignInputs): string {
   const prefix = pickRandom(getOrgPrefixes(inputs.cause));
@@ -105,7 +88,6 @@ export function generateCampaign(inputs: CampaignInputs): Campaign {
     id: crypto.randomUUID(),
     sections: generateSections(inputs),
     inputs: { ...inputs },
-    imageUrl: generateImageUrl(inputs.cause),
   };
 }
 
