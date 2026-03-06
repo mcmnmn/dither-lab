@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAppState, useAppDispatch } from '../state/app-context';
 import type { ThemeId, ToolId, CropAspectRatio } from '../state/types';
 
-const STORAGE_KEY = 'dither-lab-settings';
+const STORAGE_KEY = 'butterlab-settings';
 
 const VALID_THEMES: ThemeId[] = ['butterlite', 'noir', 'vt320'];
 const VALID_TOOLS: ToolId[] = ['dither', 'ascii', 'halftone', 'vhs', 'color-extractor', 'campaign-generator', 'mesh-gradient'];

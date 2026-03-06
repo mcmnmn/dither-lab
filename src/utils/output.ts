@@ -49,5 +49,5 @@ export async function exportBatchAsZip(
 
   const zipped = zipSync(files);
   const zipBlob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
-  downloadBlob(zipBlob, `dither-lab-batch-${Date.now()}.zip`);
+  downloadBlob(zipBlob, `butterlab-batch-${Date.now()}.zip`);
 }

@@ -11,7 +11,7 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
-      // Only handle shortcuts when Dither Lab is active
+      // Only handle shortcuts when butterlab is active
       if (state.activeTool !== 'dither') return;
 
       const isMod = e.metaKey || e.ctrlKey;

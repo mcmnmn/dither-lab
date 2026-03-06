@@ -9,7 +9,7 @@ interface MatrixEditorModalProps {
   initialMatrix?: CustomMatrix;
 }
 
-const SAVED_MATRICES_KEY = 'dither-lab-custom-matrices';
+const SAVED_MATRICES_KEY = 'butterlab-custom-matrices';
 
 function loadSavedMatrices(): CustomMatrix[] {
   try {
