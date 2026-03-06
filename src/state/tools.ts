@@ -15,7 +15,9 @@ export const TOOLS: ToolDefinition[] = [
   { id: 'vhs',         label: 'RETRO',       shortLabel: 'Retro',       available: true },
   { id: 'color-extractor', label: 'PALETTE',  shortLabel: 'Palette',    available: true },
   { id: 'mesh-gradient', label: 'MESH',       shortLabel: 'Mesh',       available: true },
-  { id: 'campaign-generator', label: 'COPYGEN',  shortLabel: 'CopyGen',  available: true },
+  { id: 'campaign-generator', label: 'COPYGEN',  shortLabel: 'CopyGen',  available: false },
+  { id: 'svg-animator', label: 'SVG MOTION', shortLabel: 'SVG Motion', available: true },
+  { id: 'resources', label: 'RESOURCES', shortLabel: 'Resources', available: true },
 ];
 
 const EFFECT_TOOL_IDS: Set<ToolId> = new Set([

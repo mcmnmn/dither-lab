@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const FORMSPREE_URL = 'https://formspree.io/f/clint.mcmanaman@givebutter.com';
+const FORMSPREE_URL = 'https://formspree.io/f/xbdzrwwo';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 

@@ -1,10 +1,10 @@
 import type { MeshGradientState, MeshNode, MeshExportResolution, MeshBlendMode } from './types';
 
 export const DEFAULT_NODES: MeshNode[] = [
-  { id: '1', x: 0.2, y: 0.2, color: '#ff6b35' },
-  { id: '2', x: 0.8, y: 0.25, color: '#f7c59f' },
-  { id: '3', x: 0.5, y: 0.75, color: '#1a535c' },
-  { id: '4', x: 0.15, y: 0.7, color: '#4ecdc4' },
+  { id: '1', x: 0.25, y: 0.2, color: '#FFBF02' },
+  { id: '2', x: 0.8, y: 0.15, color: '#F6F3EB' },
+  { id: '3', x: 0.3, y: 0.75, color: '#E6AC02' },
+  { id: '4', x: 0.75, y: 0.7, color: '#FFD966' },
 ];
 
 export const BLEND_MODE_OPTIONS: { value: MeshBlendMode; label: string }[] = [
@@ -26,8 +26,8 @@ export const HARMONY_OPTIONS = [
 
 export const meshGradientInitialState: MeshGradientState = {
   nodes: DEFAULT_NODES,
-  bgColor: '#1a1a2e',
-  harmonyRule: 'random',
+  bgColor: '#1B1B1B',
+  harmonyRule: 'triadic',
   effects: { intensity: 75, smoothness: 75, blendMode: 'screen' as const },
   darkPreview: true,
   exportFormat: 'png',

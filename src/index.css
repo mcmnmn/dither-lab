@@ -14,6 +14,7 @@
   --color-accent: #ffbf02;
   --color-accent-hover: #e6ac02;
   --color-accent-text: #1b1b1b;
+  --color-dot: #e0dbd0;
 }
 
 /* ═══════════════════════════════════════════════
@@ -29,6 +30,7 @@
   --color-accent: #ffffff;
   --color-accent-hover: #cccccc;
   --color-accent-text: #0a0a0a;
+  --color-dot: #1a1a1a;
 }
 
 /* ═══════════════════════════════════════════════
@@ -44,6 +46,7 @@
   --color-accent: #ffb000;
   --color-accent-hover: #ffcc40;
   --color-accent-text: #0a0a08;
+  --color-dot: #1a1708;
 }
 
 
@@ -55,6 +58,15 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   overflow: hidden;
+}
+
+/* Dot grid pattern */
+body,
+header,
+aside,
+.dot-grid {
+  background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 #root {

@@ -11,6 +11,10 @@ import { CampaignGeneratorProvider } from '../../campaign-generator/state/contex
 import { CampaignGeneratorApp } from '../../campaign-generator/components/CampaignGeneratorApp';
 import { MeshGradientProvider } from '../../mesh-gradient/state/context';
 import { MeshGradientApp } from '../../mesh-gradient/components/MeshGradientApp';
+import { SvgAnimatorProvider } from '../../svg-animator/state/context';
+import { SvgAnimatorApp } from '../../svg-animator/components/SvgAnimatorApp';
+import { ResourcesProvider } from '../../resources/state/context';
+import { ResourcesApp } from '../../resources/components/ResourcesApp';
 import { FeedbackModal } from '../feedback/FeedbackModal';
 import type { ThemeId } from '../../state/types';
 import { TOOLS, getToolById, isEffectTool, toGrainEffectId } from '../../state/tools';
@@ -62,7 +66,7 @@ export function Layout() {
     <div className="border-b border-(--color-border) px-4 py-2">
       <span className="mb-1 block text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Tools</span>
       <div className="flex flex-wrap gap-1">
-        {TOOLS.map(tool => (
+        {TOOLS.filter(t => t.available).map(tool => (
           <button key={tool.id} onClick={() => { dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id }); setSidebarOpen(false); }} className={`px-2 py-1 text-xs font-medium uppercase transition-colors ${activeTool === tool.id ? 'bg-(--color-accent) text-(--color-accent-text)' : 'text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)'}`}>
             {tool.shortLabel}
           </button>
@@ -95,7 +99,7 @@ export function Layout() {
           </svg>
           {!isNarrow && (
             <nav className="flex overflow-x-auto">
-              {TOOLS.map(tool => (
+              {TOOLS.filter(t => t.available).map(tool => (
                 <button
                   key={tool.id}
                   onClick={() => dispatch({ type: 'SET_ACTIVE_TOOL', tool: tool.id })}
@@ -149,7 +153,25 @@ export function Layout() {
       </header>
 
       {/* Main content */}
-      {activeTool === 'mesh-gradient' ? (
+      {activeTool === 'resources' ? (
+        <ResourcesProvider>
+          <ResourcesApp
+            isNarrow={isNarrow}
+            sidebarOpen={sidebarOpen}
+            onCloseSidebar={() => setSidebarOpen(false)}
+            toolSwitcher={toolSwitcher}
+          />
+        </ResourcesProvider>
+      ) : activeTool === 'svg-animator' ? (
+        <SvgAnimatorProvider>
+          <SvgAnimatorApp
+            isNarrow={isNarrow}
+            sidebarOpen={sidebarOpen}
+            onCloseSidebar={() => setSidebarOpen(false)}
+            toolSwitcher={toolSwitcher}
+          />
+        </SvgAnimatorProvider>
+      ) : activeTool === 'mesh-gradient' ? (
         <MeshGradientProvider>
           <MeshGradientApp
             isNarrow={isNarrow}

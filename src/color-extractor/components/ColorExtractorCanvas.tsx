@@ -253,7 +253,7 @@ export function ColorExtractorCanvas() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div ref={containerRef} className="relative flex-1 min-h-0 overflow-hidden bg-(--color-bg)">
+      <div ref={containerRef} className="dot-grid relative flex-1 min-h-0 overflow-hidden bg-(--color-bg)">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full cursor-crosshair"

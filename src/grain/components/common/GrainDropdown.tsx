@@ -15,7 +15,7 @@ export function GrainDropdown({ label, value, options, onChange, labelWidth = 'w
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="min-w-0 flex-1 border border-(--color-border) bg-(--color-bg) px-2 py-1 font-mono text-xs text-(--color-text) outline-none"
+        className="min-w-0 flex-1 border border-(--color-border) bg-(--color-bg) px-1.5 py-1 text-[10px] uppercase tracking-wider text-(--color-text-secondary) outline-none"
       >
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>

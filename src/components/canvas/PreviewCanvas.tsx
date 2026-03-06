@@ -157,7 +157,7 @@ export function PreviewCanvas() {
     return (
       <DropZone
         onFiles={handleFiles}
-        className="flex h-full cursor-pointer items-center justify-center bg-(--color-bg)"
+        className="dot-grid flex h-full cursor-pointer items-center justify-center bg-(--color-bg)"
       >
         <div className="text-center">
           <div className="mb-3 text-2xl text-(--color-border)">[ + ]</div>
@@ -175,7 +175,7 @@ export function PreviewCanvas() {
   // Video source — show video overlay with dither frame capture
   if (state.sourceMediaType === 'video' && state.sourceVideo) {
     return (
-      <div className="flex h-full flex-col bg-(--color-bg)">
+      <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
         <div ref={containerRef} className="relative flex-1 overflow-hidden">
           <canvas ref={canvasRef} className="absolute inset-0" />
           <VideoOverlay />
@@ -188,14 +188,14 @@ export function PreviewCanvas() {
   // GLB source — show 3D viewer
   if (state.sourceMediaType === 'glb' && state.sourceGlbUrl) {
     return (
-      <div className="flex h-full flex-col bg-(--color-bg)">
+      <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
         <GlbViewer glbUrl={state.sourceGlbUrl} fileName={state.fileName} />
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col bg-(--color-bg)">
+    <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
       {/* Size warning banner */}
       {sizeWarning && (
         <div className="flex items-center justify-between bg-amber-500/10 border-b border-amber-500/30 px-4 py-2">

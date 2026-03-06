@@ -122,7 +122,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   // WebGPU not supported fallback
   if (!gpuSupported) {
     return (
-      <div className="flex h-full items-center justify-center bg-(--color-bg)">
+      <div className="dot-grid flex h-full items-center justify-center bg-(--color-bg)">
         <div className="max-w-sm text-center">
           <div className="mb-2 font-mono text-2xl text-(--color-border)">[ ! ]</div>
           <h2 className="text-xs font-bold uppercase tracking-widest text-(--color-text)">
@@ -141,7 +141,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   // GLB source — show 3D viewer (separate from GPU canvas)
   if (appState.sourceMediaType === 'glb' && appState.sourceGlbUrl) {
     return (
-      <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-(--color-bg)">
+      <div ref={containerRef} className="dot-grid relative h-full w-full overflow-hidden bg-(--color-bg)">
         <GlbViewer glbUrl={appState.sourceGlbUrl} fileName={appState.fileName} />
       </div>
     );
@@ -156,7 +156,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   } : undefined;
 
   return (
-    <div className="flex h-full flex-col bg-(--color-bg)">
+    <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
       <div
         ref={containerRef}
         className="relative flex-1 overflow-hidden cursor-grab active:cursor-grabbing"
