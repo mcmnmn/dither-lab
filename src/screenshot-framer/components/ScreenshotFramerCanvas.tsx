@@ -7,6 +7,7 @@ const PREVIEW_SIZE = 600;
 export function ScreenshotFramerCanvas() {
   const state = useSFState();
   const dispatch = useSFDispatch();
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const screenshotRef = useRef<HTMLImageElement | null>(null);
   const logoRef = useRef<HTMLImageElement | null>(null);
@@ -14,6 +15,7 @@ export function ScreenshotFramerCanvas() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const rafRef = useRef<number>(0);
   const [loaded, setLoaded] = useState(0);
+  const [canvasSize, setCanvasSize] = useState(PREVIEW_SIZE);
 
   // Load sample image on mount if no screenshot
   useEffect(() => {
@@ -29,6 +31,23 @@ export function ScreenshotFramerCanvas() {
       })
       .catch(() => {});
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Measure container and track resizes
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const measure = () => {
+      const rect = container.getBoundingClientRect();
+      const s = Math.min(rect.width, rect.height);
+      if (s > 0) setCanvasSize(s);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
 
   // Load screenshot image
   useEffect(() => {
@@ -80,16 +99,15 @@ export function ScreenshotFramerCanvas() {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       const dpr = window.devicePixelRatio || 1;
-      const cssSize = canvas.offsetWidth || PREVIEW_SIZE;
-      const size = Math.round(cssSize * dpr);
-      canvas.width = size;
-      canvas.height = size;
+      const backing = Math.round(canvasSize * dpr);
+      canvas.width = backing;
+      canvas.height = backing;
       const ctx = canvas.getContext('2d')!;
-      renderFrameSync(ctx, size, state, screenshotRef.current, logoRef.current, patternRef.current);
+      renderFrameSync(ctx, backing, state, screenshotRef.current, logoRef.current, patternRef.current);
     });
 
     return () => cancelAnimationFrame(rafRef.current);
-  }, [state, loaded]);
+  }, [state, loaded, canvasSize]);
 
   const handleClick = useCallback(() => {
     if (!state.screenshotSrc) {
@@ -110,11 +128,15 @@ export function ScreenshotFramerCanvas() {
 
   return (
     <div className="flex flex-1 items-center justify-center bg-(--color-bg) p-4 overflow-auto">
-      <div className="relative">
+      <div
+        ref={containerRef}
+        className="relative"
+        style={{ width: `min(${PREVIEW_SIZE}px, 100%)`, maxHeight: 'calc(100vh - 120px)', aspectRatio: '1 / 1' }}
+      >
         <canvas
           ref={canvasRef}
-          className={`max-w-full max-h-[calc(100vh-120px)] ${!state.screenshotSrc ? 'cursor-pointer' : ''}`}
-          style={{ aspectRatio: '1 / 1', width: 'min(600px, 100%)' }}
+          className={!state.screenshotSrc ? 'cursor-pointer' : ''}
+          style={{ width: '100%', height: '100%', display: 'block' }}
           onClick={handleClick}
         />
         {!state.screenshotSrc && (
