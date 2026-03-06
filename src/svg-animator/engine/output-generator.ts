@@ -39,7 +39,7 @@ export function generateStandaloneSVG(
 /**
  * Generate the inline SVG markup (with class names) and separate CSS.
  */
-export function generateSplitExport(
+export function generateSplitOutput(
   svgString: string,
   animation: AnimationOutput,
   pathLengths: Map<number, number>,

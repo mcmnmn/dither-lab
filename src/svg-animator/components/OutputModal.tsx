@@ -1,18 +1,18 @@
 import { useState, useMemo, useCallback, useLayoutEffect, useRef } from 'react';
 import { useSvgAnimatorState, useSvgAnimatorDispatch } from '../state/context';
 import { generateAnimation } from '../engine/animation-generator';
-import { generateStandaloneSVG, generateSplitExport, generateReactComponent, downloadSvgFile } from '../engine/export-generator';
+import { generateStandaloneSVG, generateSplitOutput, generateReactComponent, downloadSvgFile } from '../engine/output-generator';
 
-type ExportTab = 'split' | 'standalone' | 'react';
+type OutputTab = 'split' | 'standalone' | 'react';
 
-export function ExportModal() {
+export function OutputModal() {
   const state = useSvgAnimatorState();
   const dispatch = useSvgAnimatorDispatch();
   const {
-    showExportModal, parsedSvg, preset, duration, easing, loop, stagger, staggerDelay,
+    showOutputModal, parsedSvg, preset, duration, easing, loop, stagger, staggerDelay,
     staggerMode, intensity, transformOrigin, slideDirection, elementOverrides,
   } = state;
-  const [tab, setTab] = useState<ExportTab>('split');
+  const [tab, setTab] = useState<OutputTab>('split');
   const [copied, setCopied] = useState<string | null>(null);
   const [componentName, setComponentName] = useState('AnimatedIcon');
 
@@ -30,7 +30,7 @@ export function ExportModal() {
 
   // Measure path lengths from hidden SVG
   useLayoutEffect(() => {
-    if (!showExportModal || !parsedSvg || !measureRef.current) return;
+    if (!showOutputModal || !parsedSvg || !measureRef.current) return;
     const lengths = new Map<number, number>();
     const allAnimatable = measureRef.current.querySelectorAll(
       'path, circle, rect, line, polyline, polygon, ellipse'
@@ -43,19 +43,19 @@ export function ExportModal() {
       }
     });
     setPathLengths(lengths);
-  }, [showExportModal, parsedSvg]);
+  }, [showOutputModal, parsedSvg]);
 
-  const splitExport = useMemo(() => {
+  const splitOutput = useMemo(() => {
     if (!parsedSvg) return null;
-    return generateSplitExport(parsedSvg.svgString, animation, pathLengths);
+    return generateSplitOutput(parsedSvg.svgString, animation, pathLengths);
   }, [parsedSvg, animation, pathLengths]);
 
-  const standaloneExport = useMemo(() => {
+  const standaloneOutput = useMemo(() => {
     if (!parsedSvg) return null;
     return generateStandaloneSVG(parsedSvg.svgString, animation, pathLengths);
   }, [parsedSvg, animation, pathLengths]);
 
-  const reactExport = useMemo(() => {
+  const reactOutput = useMemo(() => {
     if (!parsedSvg) return null;
     return generateReactComponent(parsedSvg.svgString, animation, pathLengths, componentName);
   }, [parsedSvg, animation, pathLengths, componentName]);
@@ -67,10 +67,10 @@ export function ExportModal() {
   }, []);
 
   const handleDownload = useCallback(() => {
-    if (standaloneExport) downloadSvgFile(standaloneExport);
-  }, [standaloneExport]);
+    if (standaloneOutput) downloadSvgFile(standaloneOutput);
+  }, [standaloneOutput]);
 
-  if (!showExportModal) return null;
+  if (!showOutputModal) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => dispatch({ type: 'SA_TOGGLE_EXPORT_MODAL' })}>
@@ -80,7 +80,7 @@ export function ExportModal() {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-(--color-border) px-4 py-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-(--color-text)">Export</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-(--color-text)">Output</span>
           <button
             onClick={() => dispatch({ type: 'SA_TOGGLE_EXPORT_MODAL' })}
             className="border border-(--color-border) p-1 text-(--color-text-secondary) hover:text-(--color-text)"
@@ -121,13 +121,13 @@ export function ExportModal() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          {tab === 'split' && splitExport && (
+          {tab === 'split' && splitOutput && (
             <div className="flex flex-col gap-3">
               <div>
                 <div className="mb-1 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">SVG Markup</span>
                   <button
-                    onClick={() => handleCopy(splitExport.svgMarkup, 'svg')}
+                    onClick={() => handleCopy(splitOutput.svgMarkup, 'svg')}
                     className="border border-(--color-border) px-2 py-0.5 text-[10px] uppercase tracking-wider text-(--color-text-secondary) hover:text-(--color-text)"
                   >
                     {copied === 'svg' ? 'Copied!' : 'Copy'}
@@ -135,7 +135,7 @@ export function ExportModal() {
                 </div>
                 <textarea
                   readOnly
-                  value={splitExport.svgMarkup}
+                  value={splitOutput.svgMarkup}
                   rows={8}
                   className="w-full resize-none border border-(--color-border) bg-(--color-bg-secondary) px-2 py-1.5 font-mono text-[10px] text-(--color-text) outline-none"
                 />
@@ -144,7 +144,7 @@ export function ExportModal() {
                 <div className="mb-1 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">CSS</span>
                   <button
-                    onClick={() => handleCopy(splitExport.css, 'css')}
+                    onClick={() => handleCopy(splitOutput.css, 'css')}
                     className="border border-(--color-border) px-2 py-0.5 text-[10px] uppercase tracking-wider text-(--color-text-secondary) hover:text-(--color-text)"
                   >
                     {copied === 'css' ? 'Copied!' : 'Copy'}
@@ -152,7 +152,7 @@ export function ExportModal() {
                 </div>
                 <textarea
                   readOnly
-                  value={splitExport.css}
+                  value={splitOutput.css}
                   rows={8}
                   className="w-full resize-none border border-(--color-border) bg-(--color-bg-secondary) px-2 py-1.5 font-mono text-[10px] text-(--color-text) outline-none"
                 />
@@ -160,12 +160,12 @@ export function ExportModal() {
             </div>
           )}
 
-          {tab === 'standalone' && standaloneExport && (
+          {tab === 'standalone' && standaloneOutput && (
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">Self-contained SVG</span>
                 <button
-                  onClick={() => handleCopy(standaloneExport, 'standalone')}
+                  onClick={() => handleCopy(standaloneOutput, 'standalone')}
                   className="border border-(--color-border) px-2 py-0.5 text-[10px] uppercase tracking-wider text-(--color-text-secondary) hover:text-(--color-text)"
                 >
                   {copied === 'standalone' ? 'Copied!' : 'Copy'}
@@ -173,14 +173,14 @@ export function ExportModal() {
               </div>
               <textarea
                 readOnly
-                value={standaloneExport}
+                value={standaloneOutput}
                 rows={16}
                 className="w-full resize-none border border-(--color-border) bg-(--color-bg-secondary) px-2 py-1.5 font-mono text-[10px] text-(--color-text) outline-none"
               />
             </div>
           )}
 
-          {tab === 'react' && reactExport && (
+          {tab === 'react' && reactOutput && (
             <div className="flex flex-col gap-3">
               <div>
                 <div className="mb-1 flex items-center justify-between">
@@ -197,7 +197,7 @@ export function ExportModal() {
                 <div className="mb-1 flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-wider text-(--color-text-secondary)">React Component</span>
                   <button
-                    onClick={() => handleCopy(reactExport, 'react')}
+                    onClick={() => handleCopy(reactOutput, 'react')}
                     className="border border-(--color-border) px-2 py-0.5 text-[10px] uppercase tracking-wider text-(--color-text-secondary) hover:text-(--color-text)"
                   >
                     {copied === 'react' ? 'Copied!' : 'Copy'}
@@ -205,7 +205,7 @@ export function ExportModal() {
                 </div>
                 <textarea
                   readOnly
-                  value={reactExport}
+                  value={reactOutput}
                   rows={16}
                   className="w-full resize-none border border-(--color-border) bg-(--color-bg-secondary) px-2 py-1.5 font-mono text-[10px] text-(--color-text) outline-none"
                 />

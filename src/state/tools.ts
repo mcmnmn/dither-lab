@@ -12,11 +12,12 @@ export const TOOLS: ToolDefinition[] = [
   { id: 'dither',      label: 'DITHER',      shortLabel: 'Dither',      available: true },
   { id: 'ascii',       label: 'ASCII',       shortLabel: 'ASCII',       available: true },
   { id: 'halftone',    label: 'HALFTONE',    shortLabel: 'Halftone',    available: true },
-  { id: 'vhs',         label: 'RETRO',       shortLabel: 'Retro',       available: true },
+  { id: 'vhs',         label: 'RETRO',       shortLabel: 'Retro',       available: false },
   { id: 'color-extractor', label: 'PALETTE',  shortLabel: 'Palette',    available: true },
   { id: 'mesh-gradient', label: 'MESH',       shortLabel: 'Mesh',       available: true },
   { id: 'campaign-generator', label: 'COPYGEN',  shortLabel: 'CopyGen',  available: false },
   { id: 'svg-animator', label: 'SVG MOTION', shortLabel: 'SVG Motion', available: true },
+  { id: 'graph-maker', label: 'GRAPHS', shortLabel: 'Graphs', available: true },
   { id: 'resources', label: 'RESOURCES', shortLabel: 'Resources', available: true },
 ];
 

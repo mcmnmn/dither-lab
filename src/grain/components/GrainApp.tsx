@@ -5,14 +5,13 @@ import { useGrainPersistence } from '../hooks/use-grain-persistence';
 import { useGrainState, useGrainDispatch } from '../state/grain-context';
 import { useAppState, useAppDispatch } from '../../state/app-context';
 import { EffectSettings } from './effects';
-import { useGrainExport } from '../hooks/use-grain-export';
+import { useGrainOutput } from '../hooks/use-grain-output';
 import { ProcessingPanel } from './panels/ProcessingPanel';
 import { PostProcessingPanel } from './panels/PostProcessingPanel';
-import { ExportPanel } from './panels/ExportPanel';
+import { OutputPanel } from './panels/OutputPanel';
 import { InputSection } from '../../components/sidebar/InputSection';
 import { BatchPanel } from '../../components/batch/BatchPanel';
 import { loadImageFile } from '../../utils/image-io';
-import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import type { GrainEffectId } from '../state/types';
 import type { BatchItem } from '../../state/types';
 
@@ -70,7 +69,7 @@ function GrainNarrowLayout({
   const { activeEffect } = useGrainState();
   const state = useAppState();
   const dispatch = useAppDispatch();
-  const { download } = useGrainExport(canvasRef);
+  const { download } = useGrainOutput(canvasRef);
 
   const handleFiles = useCallback(async (files: File[]) => {
     if (state.mode === 'batch') {
@@ -84,17 +83,8 @@ function GrainNarrowLayout({
     }
     const file = files[0];
     if (!file) return;
-    const mediaType = detectMediaType(file);
-    if (mediaType === 'video') {
-      const videoElement = await loadVideoFile(file);
-      dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
-    } else if (mediaType === 'glb') {
-      const glbUrl = URL.createObjectURL(file);
-      dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
-    } else {
-      const imageData = await loadImageFile(file);
-      dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
-    }
+    const imageData = await loadImageFile(file);
+    dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
   }, [dispatch, state.mode]);
 
 
@@ -133,8 +123,8 @@ function GrainNarrowLayout({
               <ProcessingPanel />
               <PostProcessingPanel />
 
-              {/* Export */}
-              <ExportPanel
+              {/* Output */}
+              <OutputPanel
                 onDownload={download}
                 disabled={!state.sourceImage}
               />

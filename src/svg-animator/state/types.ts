@@ -83,7 +83,7 @@ export interface SvgAnimatorState {
   playing: boolean;
   previewBg: PreviewBackground;
   previewSize: PreviewSize;
-  showExportModal: boolean;
+  showOutputModal: boolean;
   // V2
   staggerMode: StaggerMode;
   intensity: number;

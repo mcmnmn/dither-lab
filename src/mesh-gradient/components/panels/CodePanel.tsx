@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useMeshGradientState, useMeshGradientDispatch } from '../../state/context';
 import { generateCSS, generateSVG } from '../../engine/generate-code';
-import type { MeshExportFormat } from '../../state/types';
+import type { MeshOutputFormat } from '../../state/types';
 
 export function CodePanel() {
   const state = useMeshGradientState();
@@ -18,7 +18,7 @@ export function CodePanel() {
     setTimeout(() => setCopied(false), 1500);
   }, [code]);
 
-  const handleFormatChange = useCallback((format: MeshExportFormat) => {
+  const handleFormatChange = useCallback((format: MeshOutputFormat) => {
     dispatch({ type: 'MG_SET_EXPORT_FORMAT', format });
   }, [dispatch]);
 

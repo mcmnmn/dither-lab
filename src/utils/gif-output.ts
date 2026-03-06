@@ -1,7 +1,7 @@
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 
 /**
- * Export ImageData as a GIF blob using gifenc.
+ * Output ImageData as a GIF blob using gifenc.
  * Applies quantization and palette mapping for indexed color output.
  */
 export function imageDataToGifBlob(

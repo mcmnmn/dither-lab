@@ -1,4 +1,4 @@
-export type PaletteExportFormat = 'css' | 'json' | 'hex' | 'tailwind';
+export type PaletteOutputFormat = 'css' | 'json' | 'hex' | 'tailwind';
 
 export interface ExtractedColor {
   rgb: [number, number, number];
@@ -14,7 +14,7 @@ export interface ColorExtractorState {
   colorCount: number;
   hoveredColor: [number, number, number] | null;
   hoveredPosition: { x: number; y: number } | null;
-  exportFormat: PaletteExportFormat;
+  exportFormat: PaletteOutputFormat;
   extracting: boolean;
 }
 
@@ -27,6 +27,6 @@ export type ColorExtractorAction =
   | { type: 'CE_UPDATE_COLOR'; index: number; rgb: [number, number, number]; imagePosition: { x: number; y: number } }
   | { type: 'CE_REMOVE_COLOR'; index: number }
   | { type: 'CE_TOGGLE_LOCK'; index: number }
-  | { type: 'CE_SET_EXPORT_FORMAT'; format: PaletteExportFormat }
+  | { type: 'CE_SET_EXPORT_FORMAT'; format: PaletteOutputFormat }
   | { type: 'CE_SET_EXTRACTING'; extracting: boolean }
   | { type: 'CE_LOAD_STATE'; state: Partial<ColorExtractorState> };

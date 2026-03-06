@@ -1,12 +1,12 @@
 import { useAppState, useAppDispatch } from '../../../state/app-context';
-import type { ExportFormat } from '../../../state/types';
+import type { OutputFormat } from '../../../state/types';
 
-interface ExportPanelProps {
+interface OutputPanelProps {
   onDownload: () => void;
   disabled: boolean;
 }
 
-export function ExportPanel({ onDownload, disabled }: ExportPanelProps) {
+export function OutputPanel({ onDownload, disabled }: OutputPanelProps) {
   const { exportFormat, exportScale } = useAppState();
   const dispatch = useAppDispatch();
 
@@ -19,7 +19,7 @@ export function ExportPanel({ onDownload, disabled }: ExportPanelProps) {
           <div className="space-y-1">
             <span className="text-xs text-(--color-text-secondary)">Format</span>
             <div className="flex gap-0 border border-(--color-border)">
-              {(['png', 'jpg', 'webp', 'gif'] as ExportFormat[]).map(fmt => (
+              {(['png', 'jpg', 'webp', 'gif'] as OutputFormat[]).map(fmt => (
                 <button
                   key={fmt}
                   onClick={() => dispatch({ type: 'SET_EXPORT_FORMAT', format: fmt })}

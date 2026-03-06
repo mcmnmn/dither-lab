@@ -1,6 +1,9 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { useColorExtractorState, useColorExtractorDispatch } from '../state/context';
+import { useAppState, useAppDispatch } from '../../state/app-context';
+import { useZoomPan } from '../../hooks/use-zoom-pan';
 import { DropZone } from '../../components/common/DropZone';
+import { CanvasToolbar } from '../../components/common/CanvasToolbar';
 import { loadImageFile } from '../../utils/image-io';
 import { loadSampleImage } from '../../utils/sample-image';
 import { rgbToHex } from '../../utils/color';
@@ -34,10 +37,41 @@ function findClosestPixel(imageData: ImageData, rgb: [number, number, number]): 
 export function ColorExtractorCanvas() {
   const { sourceImage, colors, colorCount, hoveredColor, hoveredPosition } = useColorExtractorState();
   const dispatch = useColorExtractorDispatch();
+  const appState = useAppState();
+  const appDispatch = useAppDispatch();
+  const { handleWheel, handleMouseDown: zoomMouseDown, handleMouseMove: zoomMouseMove, handleMouseUp: zoomMouseUp } = useZoomPan();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ w: 0, h: 0 });
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const prevSourceRef = useRef<ImageData | null>(null);
+
+  // Compute fit zoom for width-fill
+  const computeFitZoom = useCallback(() => {
+    if (!sourceImage || canvasSize.w === 0) return null;
+    return canvasSize.w / sourceImage.width;
+  }, [sourceImage, canvasSize.w]);
+
+  // Auto-fit when source image changes
+  useEffect(() => {
+    if (!sourceImage || sourceImage === prevSourceRef.current) return;
+    prevSourceRef.current = sourceImage;
+    requestAnimationFrame(() => {
+      const fitZoom = computeFitZoom();
+      if (fitZoom) {
+        appDispatch({ type: 'SET_ZOOM', zoom: fitZoom });
+        appDispatch({ type: 'SET_PAN', x: 0, y: 0 });
+      }
+    });
+  }, [sourceImage, computeFitZoom, appDispatch]);
+
+  const handleFit = useCallback(() => {
+    const fitZoom = computeFitZoom();
+    if (fitZoom) {
+      appDispatch({ type: 'SET_ZOOM', zoom: fitZoom });
+      appDispatch({ type: 'SET_PAN', x: 0, y: 0 });
+    }
+  }, [computeFitZoom, appDispatch]);
 
   // Handle file upload
   const handleFiles = useCallback(async (files: File[]) => {
@@ -85,23 +119,15 @@ export function ColorExtractorCanvas() {
     return () => ro.disconnect();
   }, [sourceImage]);
 
-  // Compute display geometry for image fitting
+  // Compute display geometry using zoom/pan from app state
   const displayGeometry = useMemo(() => {
     if (!sourceImage || canvasSize.w === 0 || canvasSize.h === 0) return null;
-    const imgAspect = sourceImage.width / sourceImage.height;
-    const containerAspect = canvasSize.w / canvasSize.h;
-    let displayW: number, displayH: number;
-    if (imgAspect > containerAspect) {
-      displayW = canvasSize.w;
-      displayH = canvasSize.w / imgAspect;
-    } else {
-      displayH = canvasSize.h;
-      displayW = canvasSize.h * imgAspect;
-    }
-    const offsetX = (canvasSize.w - displayW) / 2;
-    const offsetY = (canvasSize.h - displayH) / 2;
-    return { displayW, displayH, offsetX, offsetY };
-  }, [sourceImage, canvasSize]);
+    const drawW = sourceImage.width * appState.zoom;
+    const drawH = sourceImage.height * appState.zoom;
+    const offsetX = (canvasSize.w - drawW) / 2 + appState.panX;
+    const offsetY = (canvasSize.h - drawH) / 2 + appState.panY;
+    return { displayW: drawW, displayH: drawH, offsetX, offsetY };
+  }, [sourceImage, canvasSize, appState.zoom, appState.panX, appState.panY]);
 
   // Draw image on canvas
   useEffect(() => {
@@ -173,7 +199,7 @@ export function ColorExtractorCanvas() {
   }, [sourceImage, displayGeometry]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (draggingIndex !== null) return; // Don't show hover tooltip while dragging
+    if (draggingIndex !== null) return;
     const coords = getImageCoords(e);
     if (!coords) {
       dispatch({ type: 'CE_SET_HOVERED_COLOR', rgb: null, position: null });
@@ -190,7 +216,7 @@ export function ColorExtractorCanvas() {
   }, [dispatch]);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (draggingIndex !== null) return; // Don't add color if we just finished dragging
+    if (draggingIndex !== null) return;
     const coords = getImageCoords(e);
     if (!coords) return;
     const rgb = samplePixel(coords.imgX, coords.imgY);
@@ -253,7 +279,15 @@ export function ColorExtractorCanvas() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div ref={containerRef} className="dot-grid relative flex-1 min-h-0 overflow-hidden bg-(--color-bg)">
+      <div
+        ref={containerRef}
+        className="dot-grid relative flex-1 min-h-0 overflow-hidden bg-(--color-bg) cursor-crosshair"
+        onWheel={handleWheel as unknown as React.WheelEventHandler<HTMLDivElement>}
+        onMouseDown={zoomMouseDown as unknown as React.MouseEventHandler<HTMLDivElement>}
+        onMouseMove={zoomMouseMove as unknown as React.MouseEventHandler<HTMLDivElement>}
+        onMouseUp={zoomMouseUp}
+        onMouseLeave={zoomMouseUp}
+      >
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full cursor-crosshair"
@@ -308,6 +342,7 @@ export function ColorExtractorCanvas() {
         )}
       </div>
 
+      <CanvasToolbar onFit={handleFit} hideAspectRatio />
     </div>
   );
 }

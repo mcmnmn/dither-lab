@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useAppState, useAppDispatch } from '../state/app-context';
 import { ALGORITHMS } from '../algorithms';
-import { exportSingle } from '../utils/export';
+import { exportSingle } from '../utils/output';
 import { processImage } from '../services/dither-engine';
 import { PALETTE_PRESETS } from '../palette/presets';
 

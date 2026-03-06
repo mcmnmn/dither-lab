@@ -16,7 +16,7 @@ export function InputSection({
   showModeToggle = false,
   multiple = false,
   accept = MEDIA_ACCEPT,
-  formatHint = 'PNG, JPG, GIF, MP4, WebM, GLB',
+  formatHint = 'PNG, JPG, GIF, WebP',
 }: InputSectionProps) {
   const { mode } = useAppState();
   const dispatch = useAppDispatch();

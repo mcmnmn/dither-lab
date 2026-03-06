@@ -1,6 +1,6 @@
 // ── Effect IDs ──────────────────────────────────────────────
 export type GrainEffectId = 'ascii' | 'halftone' | 'noise-field' | 'pixel-sort' | 'crosshatch' | 'vhs';
-export type GrainExportFormat = 'png' | 'jpeg' | 'gif';
+export type GrainOutputFormat = 'png' | 'jpeg' | 'gif';
 
 // ── Per-Effect Settings ─────────────────────────────────────
 export type AsciiCharSet = 'standard' | 'blocks' | 'binary' | 'detailed' | 'minimal' | 'alphabetic' | 'numeric' | 'math' | 'symbols';
@@ -142,8 +142,8 @@ export interface GrainState {
   processing: ProcessingSettings;
   postProcessing: PostProcessingSettings;
 
-  // Export
-  exportFormat: GrainExportFormat;
+  // Output
+  exportFormat: GrainOutputFormat;
 
   // GPU state
   gpuReady: boolean;
@@ -162,7 +162,7 @@ export type GrainAction =
   | { type: 'GRAIN_UPDATE_VHS'; settings: Partial<VhsSettings> }
   | { type: 'GRAIN_UPDATE_PROCESSING'; settings: Partial<ProcessingSettings> }
   | { type: 'GRAIN_UPDATE_POST_PROCESSING'; settings: Partial<PostProcessingSettings> }
-  | { type: 'GRAIN_SET_EXPORT_FORMAT'; format: GrainExportFormat }
+  | { type: 'GRAIN_SET_EXPORT_FORMAT'; format: GrainOutputFormat }
   | { type: 'GRAIN_SET_GPU_READY'; ready: boolean }
   | { type: 'GRAIN_SET_GPU_ERROR'; error: string | null }
   | { type: 'GRAIN_SET_RENDER_TIME'; time: number }

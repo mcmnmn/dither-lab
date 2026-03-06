@@ -3,7 +3,7 @@ import { useAppState, useAppDispatch } from '../../state/app-context';
 import { DropZone } from '../common/DropZone';
 import { loadImageFile } from '../../utils/image-io';
 import { PALETTE_PRESETS } from '../../palette/presets';
-import { exportBatchAsZip } from '../../utils/export';
+import { exportBatchAsZip } from '../../utils/output';
 import { WorkerPool } from '../../services/worker-pool';
 import { useBatchPreview } from '../../hooks/use-batch-preview';
 
@@ -94,7 +94,7 @@ export function BatchPanel() {
     dispatch({ type: 'SET_BATCH_PROCESSING', processing: false });
   }, [state, dispatch]);
 
-  const handleExport = useCallback(async () => {
+  const handleOutput = useCallback(async () => {
     const results = state.batchQueue
       .filter(i => i.status === 'done' && i.result)
       .map(i => ({ fileName: i.file.name, imageData: i.result! }));
@@ -224,7 +224,7 @@ export function BatchPanel() {
               {state.batchProcessing ? 'Processing...' : 'Process All'}
             </button>
             <button
-              onClick={handleExport}
+              onClick={handleOutput}
               disabled={doneCount === 0}
               className="flex-1 border border-(--color-border) px-4 py-2 text-xs font-medium text-(--color-text) transition-colors hover:bg-(--color-bg-tertiary) disabled:opacity-40 disabled:cursor-not-allowed"
             >

@@ -9,15 +9,12 @@ export function useGrainEngine(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   sourceImage: ImageData | null,
   renderToken: number = 0,
-  sourceVideo: HTMLVideoElement | null = null
 ) {
   const state = useGrainState();
   const dispatch = useGrainDispatch();
   const { cropAspectRatio } = useAppState();
   const pipelineRef = useRef<GrainPipeline | null>(null);
   const initRef = useRef(false);
-  const stateRef = useRef(state);
-  stateRef.current = state;
 
   // Apply crop to source image
   const croppedImage = useMemo(() => {
@@ -85,28 +82,4 @@ export function useGrainEngine(
     dispatch,
   ]);
 
-  // Video frame loop — upload video frames to GPU and render each frame
-  useEffect(() => {
-    if (!pipelineRef.current || !sourceVideo) return;
-
-    let animId: number;
-    let running = true;
-
-    sourceVideo.play().catch(() => {});
-
-    const loop = () => {
-      if (!running || !pipelineRef.current) return;
-      if (!sourceVideo.paused && !sourceVideo.ended) {
-        pipelineRef.current.setVideoFrame(sourceVideo);
-        pipelineRef.current.render(stateRef.current);
-      }
-      animId = requestAnimationFrame(loop);
-    };
-    animId = requestAnimationFrame(loop);
-
-    return () => {
-      running = false;
-      cancelAnimationFrame(animId);
-    };
-  }, [sourceVideo, state.gpuReady]);
 }

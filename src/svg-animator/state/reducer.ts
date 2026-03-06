@@ -30,7 +30,7 @@ export function svgAnimatorReducer(state: SvgAnimatorState, action: SvgAnimatorA
     case 'SA_SET_PREVIEW_SIZE':
       return { ...state, previewSize: action.size };
     case 'SA_TOGGLE_EXPORT_MODAL':
-      return { ...state, showExportModal: !state.showExportModal };
+      return { ...state, showOutputModal: !state.showOutputModal };
     case 'SA_LOAD_STATE':
       return { ...state, ...action.state };
 

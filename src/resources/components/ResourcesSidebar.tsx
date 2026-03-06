@@ -21,7 +21,7 @@ export function ResourcesSidebar() {
   const dispatch = useResourcesDispatch();
   const importRef = useRef<HTMLInputElement>(null);
 
-  const handleExport = useCallback(() => {
+  const handleOutput = useCallback(() => {
     const data = JSON.stringify({ brands: state.brands, resources: state.resources }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     downloadBlob(blob, `brand-resources-${Date.now()}.json`);
@@ -121,7 +121,7 @@ export function ResourcesSidebar() {
         </button>
       </fieldset>
 
-      {/* Import / Export */}
+      {/* Import / Output */}
       <fieldset className="retro-section">
         <legend className="retro-section-label">Library</legend>
         <div className="flex gap-2">
@@ -132,10 +132,10 @@ export function ResourcesSidebar() {
             Import
           </button>
           <button
-            onClick={handleExport}
+            onClick={handleOutput}
             className="flex-1 border border-(--color-border) px-2 py-1.5 text-[10px] uppercase tracking-wider text-(--color-text-secondary) hover:bg-(--color-bg-tertiary) hover:text-(--color-text)"
           >
-            Export
+            Output
           </button>
         </div>
         <input ref={importRef} type="file" accept=".json" onChange={handleImport} className="hidden" />

@@ -2,12 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { useAppState, useAppDispatch } from '../../state/app-context';
 import { useZoomPan } from '../../hooks/use-zoom-pan';
 import { DropZone } from '../common/DropZone';
-import { VideoOverlay } from './VideoOverlay';
-import { VideoControls } from '../common/VideoControls';
-import { GlbViewer } from './GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
-import { detectMediaType, loadVideoFile } from '../../utils/media-io';
-import { loadSampleImage } from '../../utils/sample-image';
 import { CanvasToolbar } from '../common/CanvasToolbar';
 
 const MAX_WARN = 4096;
@@ -21,35 +16,62 @@ export function PreviewCanvas() {
   const { handleWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useZoomPan();
   const [sizeWarning, setSizeWarning] = useState<string | null>(null);
   const [renderToken, setRenderToken] = useState(0);
+  const prevSourceRef = useRef<ImageData | null>(null);
 
-  // Preload sample image when no source is set
+  // Compute fit zoom for an image within the container
+  const computeFitZoom = useCallback(() => {
+    const container = containerRef.current;
+    const img = state.resultImage || state.sourceImage;
+    if (!container || !img) return null;
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+    return rect.width / img.width;
+  }, [state.sourceImage, state.resultImage]);
+
+  // Auto-fit when a new source image is loaded
   useEffect(() => {
-    if (!state.sourceImage && !state.sourceVideo && !state.sourceGlbUrl) {
-      loadSampleImage().then(sample => {
-        dispatch({ type: 'SET_SOURCE', imageData: sample, file: null, fileName: 'sample.jpg' });
+    const img = state.sourceImage;
+    if (!img || img === prevSourceRef.current) return;
+    prevSourceRef.current = img;
+    // Defer to next frame so container is measured
+    requestAnimationFrame(() => {
+      const fitZoom = computeFitZoom();
+      if (fitZoom) {
+        dispatch({ type: 'SET_ZOOM', zoom: fitZoom });
+        dispatch({ type: 'SET_PAN', x: 0, y: 0 });
+      }
+    });
+  }, [state.sourceImage, computeFitZoom, dispatch]);
+
+  // Re-fit when result image arrives for the first time (dither output may differ in size)
+  const prevResultRef = useRef<ImageData | null>(null);
+  useEffect(() => {
+    const res = state.resultImage;
+    if (!res || res === prevResultRef.current) return;
+    const isFirst = prevResultRef.current === null;
+    prevResultRef.current = res;
+    if (isFirst) {
+      requestAnimationFrame(() => {
+        const fitZoom = computeFitZoom();
+        if (fitZoom) {
+          dispatch({ type: 'SET_ZOOM', zoom: fitZoom });
+          dispatch({ type: 'SET_PAN', x: 0, y: 0 });
+        }
       });
     }
-  }, []);
+  }, [state.resultImage, computeFitZoom, dispatch]);
+
+  const handleFit = useCallback(() => {
+    const fitZoom = computeFitZoom();
+    if (fitZoom) {
+      dispatch({ type: 'SET_ZOOM', zoom: fitZoom });
+      dispatch({ type: 'SET_PAN', x: 0, y: 0 });
+    }
+  }, [computeFitZoom, dispatch]);
 
   const handleFiles = useCallback(async (files: File[]) => {
     const file = files[0];
     if (!file) return;
-
-    const mediaType = detectMediaType(file);
-
-    if (mediaType === 'video') {
-      setSizeWarning(null);
-      const videoElement = await loadVideoFile(file);
-      dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
-      return;
-    }
-
-    if (mediaType === 'glb') {
-      setSizeWarning(null);
-      const glbUrl = URL.createObjectURL(file);
-      dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
-      return;
-    }
 
     const imageData = await loadImageFile(file);
 
@@ -73,7 +95,7 @@ export function PreviewCanvas() {
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
-        if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
+        if (item.type.startsWith('image/')) {
           const file = item.getAsFile();
           if (file) handleFiles([file]);
           return;
@@ -151,7 +173,7 @@ export function PreviewCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  const hasSource = state.sourceImage || state.sourceVideo || state.sourceGlbUrl;
+  const hasSource = !!state.sourceImage;
 
   if (!hasSource) {
     return (
@@ -165,32 +187,10 @@ export function PreviewCanvas() {
             Drop a file here, click to browse, or paste from clipboard
           </p>
           <p className="mt-1 text-xs text-(--color-text-secondary) opacity-60">
-            PNG, JPG, WebP, GIF, MP4, WebM, GLB
+            PNG, JPG, WebP, GIF
           </p>
         </div>
       </DropZone>
-    );
-  }
-
-  // Video source — show video overlay with dither frame capture
-  if (state.sourceMediaType === 'video' && state.sourceVideo) {
-    return (
-      <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
-        <div ref={containerRef} className="relative flex-1 overflow-hidden">
-          <canvas ref={canvasRef} className="absolute inset-0" />
-          <VideoOverlay />
-          <VideoControls video={state.sourceVideo} />
-        </div>
-      </div>
-    );
-  }
-
-  // GLB source — show 3D viewer
-  if (state.sourceMediaType === 'glb' && state.sourceGlbUrl) {
-    return (
-      <div className="dot-grid flex h-full flex-col bg-(--color-bg)">
-        <GlbViewer glbUrl={state.sourceGlbUrl} fileName={state.fileName} />
-      </div>
     );
   }
 
@@ -233,7 +233,7 @@ export function PreviewCanvas() {
         )}
       </div>
 
-      <CanvasToolbar />
+      <CanvasToolbar onFit={handleFit} />
     </div>
   );
 }

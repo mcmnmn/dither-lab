@@ -1,13 +1,13 @@
 import { useSvgAnimatorState, useSvgAnimatorDispatch } from '../../state/context';
 
-export function ExportPanel() {
+export function OutputPanel() {
   const { parsedSvg } = useSvgAnimatorState();
   const dispatch = useSvgAnimatorDispatch();
   const disabled = !parsedSvg;
 
   return (
     <fieldset className="retro-section">
-      <legend className="retro-section-label">Export</legend>
+      <legend className="retro-section-label">Output</legend>
 
       <div className="flex flex-col gap-2">
         <button

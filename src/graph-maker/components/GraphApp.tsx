@@ -1,30 +1,25 @@
-import { SvgAnimatorSidebar } from './SvgAnimatorSidebar';
-import { SvgAnimatorRightSidebar } from './SvgAnimatorRightSidebar';
-import { SvgAnimatorPreview } from './SvgAnimatorPreview';
-import { OutputModal } from './OutputModal';
-import { InputPanel } from './panels/InputPanel';
-import { ElementInspectorPanel } from './panels/ElementInspectorPanel';
-import { PresetPanel } from './panels/PresetPanel';
-import { ControlsPanel } from './panels/ControlsPanel';
-import { PreviewControlsPanel } from './panels/PreviewControlsPanel';
-import { OutputPanel } from './panels/OutputPanel';
-import { useSvgAnimatorPersistence } from '../hooks/use-svg-animator-persistence';
+import { useRef } from 'react';
+import { GraphSidebar, SidebarContent } from './GraphSidebar';
+import { GraphRightSidebar, RightSidebarContent } from './GraphRightSidebar';
+import { GraphPreview } from './GraphPreview';
+import { useGraphPersistence } from '../hooks/use-graph-persistence';
 
-interface SvgAnimatorAppProps {
+interface GraphAppProps {
   isNarrow: boolean;
   sidebarOpen: boolean;
   onCloseSidebar: () => void;
   toolSwitcher: React.ReactNode;
 }
 
-export function SvgAnimatorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: SvgAnimatorAppProps) {
-  useSvgAnimatorPersistence();
+export function GraphApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwitcher }: GraphAppProps) {
+  useGraphPersistence();
+  const svgRef = useRef<SVGSVGElement>(null);
 
   if (isNarrow) {
     return (
       <div className="relative flex flex-1 flex-col overflow-hidden">
         <main className="flex flex-1 flex-col overflow-hidden">
-          <SvgAnimatorPreview />
+          <GraphPreview svgRef={svgRef} />
         </main>
         {sidebarOpen && (
           <>
@@ -40,29 +35,23 @@ export function SvgAnimatorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolSwit
               </div>
               {toolSwitcher}
               <div className="flex flex-col gap-4 p-4">
-                <InputPanel />
-                <ElementInspectorPanel />
-                <PresetPanel />
-                <ControlsPanel />
-                <PreviewControlsPanel />
-                <OutputPanel />
+                <SidebarContent />
+                <RightSidebarContent svgRef={svgRef} />
               </div>
             </div>
           </>
         )}
-        <OutputModal />
       </div>
     );
   }
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <SvgAnimatorSidebar />
+      <GraphSidebar />
       <main className="flex flex-1 flex-col overflow-hidden">
-        <SvgAnimatorPreview />
+        <GraphPreview svgRef={svgRef} />
       </main>
-      <SvgAnimatorRightSidebar />
-      <OutputModal />
+      <GraphRightSidebar svgRef={svgRef} />
     </div>
   );
 }

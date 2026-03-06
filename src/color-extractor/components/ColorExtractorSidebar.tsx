@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { SettingsPanel } from './panels/SettingsPanel';
 import { PalettePanel } from './panels/PalettePanel';
-import { ExportPanel } from './panels/ExportPanel';
+import { OutputPanel } from './panels/OutputPanel';
 import { InputSection } from '../../components/sidebar/InputSection';
 import { useColorExtractorDispatch } from '../state/context';
 import { loadImageFile } from '../../utils/image-io';
@@ -25,7 +25,7 @@ export function ColorExtractorSidebar() {
       />
       <SettingsPanel />
       <PalettePanel />
-      <ExportPanel />
+      <OutputPanel />
     </aside>
   );
 }

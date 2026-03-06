@@ -168,34 +168,6 @@ export class GrainPipeline {
     this.sourceTexture = imageDataToTexture(this.device, imageData, 'source');
   }
 
-  /** Upload a video frame directly to the source texture (zero-copy GPU path) */
-  setVideoFrame(video: HTMLVideoElement) {
-    const w = video.videoWidth;
-    const h = video.videoHeight;
-    if (w === 0 || h === 0) return;
-
-    // Recreate texture if dimensions changed
-    if (!this.sourceTexture || this.sourceTexture.width !== w || this.sourceTexture.height !== h) {
-      this.sourceTexture?.destroy();
-      this.sourceTexture = this.device.createTexture({
-        label: 'source-video',
-        size: { width: w, height: h },
-        format: 'rgba8unorm',
-        usage:
-          GPUTextureUsage.TEXTURE_BINDING |
-          GPUTextureUsage.COPY_DST |
-          GPUTextureUsage.COPY_SRC |
-          GPUTextureUsage.RENDER_ATTACHMENT,
-      });
-    }
-
-    this.device.queue.copyExternalImageToTexture(
-      { source: video },
-      { texture: this.sourceTexture },
-      { width: w, height: h }
-    );
-  }
-
   render(state: GrainState) {
     if (!this.sourceTexture) return;
 

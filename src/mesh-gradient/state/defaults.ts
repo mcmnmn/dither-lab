@@ -1,4 +1,4 @@
-import type { MeshGradientState, MeshNode, MeshExportResolution, MeshBlendMode } from './types';
+import type { MeshGradientState, MeshNode, MeshOutputResolution, MeshBlendMode } from './types';
 
 export const DEFAULT_NODES: MeshNode[] = [
   { id: '1', x: 0.25, y: 0.2, color: '#FFBF02' },
@@ -38,7 +38,7 @@ export const meshGradientInitialState: MeshGradientState = {
   draggingNodeId: null,
 };
 
-export const EXPORT_RESOLUTIONS: { value: MeshExportResolution; label: string }[] = [
+export const EXPORT_RESOLUTIONS: { value: MeshOutputResolution; label: string }[] = [
   { value: 1024, label: '1024 x 1024' },
   { value: 2048, label: '2048 x 2048' },
   { value: 4096, label: '4096 x 4096' },

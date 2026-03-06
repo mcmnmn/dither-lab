@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
-import { AppProvider, useAppState } from '../../state/app-context';
+import { AppProvider, useAppState, useAppDispatch } from '../../state/app-context';
 import { Layout } from './Layout';
 import { useDither } from '../../hooks/use-dither';
 import { usePersistence } from '../../hooks/use-persistence';
 import { useKeyboardShortcuts } from '../../hooks/use-keyboard-shortcuts';
+import { loadSampleImage } from '../../utils/sample-image';
 
 function AppInner() {
-  const { theme } = useAppState();
+  const { theme, sourceImage } = useAppState();
+  const dispatch = useAppDispatch();
 
   // Apply theme class to document
   useEffect(() => {
@@ -14,6 +16,15 @@ function AppInner() {
     cl.forEach(c => { if (c.startsWith('theme-')) cl.remove(c); });
     cl.add(`theme-${theme}`);
   }, [theme]);
+
+  // Preload sample image when no source is set
+  useEffect(() => {
+    if (!sourceImage) {
+      loadSampleImage().then(sample => {
+        dispatch({ type: 'SET_SOURCE', imageData: sample, file: null, fileName: 'sample.jpg' });
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Run dither engine on settings change
   useDither();

@@ -26,8 +26,6 @@ export const initialState: AppState = {
   mode: 'single',
   sourceMediaType: 'image',
   sourceImage: null,
-  sourceVideo: null,
-  sourceGlbUrl: null,
   sourceFile: null,
   fileName: '',
   algorithmId: 'atkinson',
@@ -63,14 +61,10 @@ export const initialState: AppState = {
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_SOURCE':
-      // Revoke old GLB URL if switching away
-      if (state.sourceGlbUrl) URL.revokeObjectURL(state.sourceGlbUrl);
       return {
         ...state,
         sourceMediaType: 'image',
         sourceImage: action.imageData,
-        sourceVideo: null,
-        sourceGlbUrl: null,
         sourceFile: action.file,
         fileName: action.fileName,
         resultImage: null,
@@ -79,41 +73,6 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         panX: 0,
         panY: 0,
       };
-
-    case 'SET_VIDEO_SOURCE':
-      if (state.sourceGlbUrl) URL.revokeObjectURL(state.sourceGlbUrl);
-      return {
-        ...state,
-        sourceMediaType: 'video',
-        sourceImage: null,
-        sourceVideo: action.videoElement,
-        sourceGlbUrl: null,
-        sourceFile: action.file,
-        fileName: action.fileName,
-        resultImage: null,
-        zoom: 1,
-        panX: 0,
-        panY: 0,
-      };
-
-    case 'SET_GLB_SOURCE':
-      if (state.sourceGlbUrl) URL.revokeObjectURL(state.sourceGlbUrl);
-      return {
-        ...state,
-        sourceMediaType: 'glb',
-        sourceImage: null,
-        sourceVideo: null,
-        sourceGlbUrl: action.glbUrl,
-        sourceFile: action.file,
-        fileName: action.fileName,
-        resultImage: null,
-        zoom: 1,
-        panX: 0,
-        panY: 0,
-      };
-
-    case 'SET_VIDEO_FRAME':
-      return { ...state, sourceImage: action.imageData };
 
     case 'SET_RESULT':
       return {

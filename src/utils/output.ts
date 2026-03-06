@@ -1,9 +1,9 @@
 import { imageDataToBlob, downloadBlob } from './image-io';
-import { imageDataToGifBlob } from './gif-export';
+import { imageDataToGifBlob } from './gif-output';
 import { zipSync } from 'fflate';
-import type { ExportFormat } from '../state/types';
+import type { OutputFormat } from '../state/types';
 
-function exportBlob(imageData: ImageData, format: ExportFormat, scale: number): Promise<Blob> {
+function exportBlob(imageData: ImageData, format: OutputFormat, scale: number): Promise<Blob> {
   if (format === 'gif') {
     return Promise.resolve(imageDataToGifBlob(imageData, scale));
   }
@@ -11,12 +11,12 @@ function exportBlob(imageData: ImageData, format: ExportFormat, scale: number): 
 }
 
 /**
- * Export a single dithered image.
+ * Output a single dithered image.
  */
 export async function exportSingle(
   imageData: ImageData,
   fileName: string,
-  format: ExportFormat,
+  format: OutputFormat,
   scale: number,
   algorithmId: string,
   colorCount: number
@@ -28,11 +28,11 @@ export async function exportSingle(
 }
 
 /**
- * Export batch results as a ZIP file.
+ * Output batch results as a ZIP file.
  */
 export async function exportBatchAsZip(
   results: { fileName: string; imageData: ImageData }[],
-  format: ExportFormat,
+  format: OutputFormat,
   scale: number,
   algorithmId: string,
   colorCount: number

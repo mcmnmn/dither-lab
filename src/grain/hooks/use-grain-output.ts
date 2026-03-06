@@ -1,22 +1,22 @@
 import { useCallback } from 'react';
 import { useAppState } from '../../state/app-context';
-import type { ExportFormat } from '../../state/types';
+import type { OutputFormat } from '../../state/types';
 
-export function useGrainExport(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+export function useGrainOutput(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const { fileName, exportFormat, exportScale } = useAppState();
 
   const download = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const mimeMap: Record<ExportFormat, string> = {
+    const mimeMap: Record<OutputFormat, string> = {
       png: 'image/png',
       jpg: 'image/jpeg',
       webp: 'image/webp',
       gif: 'image/png', // GIF export not natively supported — fallback to PNG
     };
 
-    const extMap: Record<ExportFormat, string> = {
+    const extMap: Record<OutputFormat, string> = {
       png: '.png',
       jpg: '.jpg',
       webp: '.webp',

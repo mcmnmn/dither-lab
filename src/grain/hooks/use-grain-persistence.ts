@@ -11,14 +11,14 @@ import type {
   VhsSettings,
   ProcessingSettings,
   PostProcessingSettings,
-  GrainExportFormat,
+  GrainOutputFormat,
 } from '../state/types';
 import { DEFAULT_ASCII } from '../state/defaults';
 
 const STORAGE_KEY = 'grain-lab-settings';
 
 const VALID_EFFECTS: GrainEffectId[] = ['ascii', 'halftone', 'noise-field', 'pixel-sort', 'crosshatch', 'vhs'];
-const VALID_FORMATS: GrainExportFormat[] = ['png', 'jpeg', 'gif'];
+const VALID_FORMATS: GrainOutputFormat[] = ['png', 'jpeg', 'gif'];
 const VALID_CHAR_SETS: AsciiCharSet[] = ['standard', 'blocks', 'binary', 'detailed', 'minimal', 'alphabetic', 'numeric', 'math', 'symbols'];
 
 interface PersistedGrainSettings {
@@ -31,7 +31,7 @@ interface PersistedGrainSettings {
   vhs: VhsSettings;
   processing: ProcessingSettings;
   postProcessing: PostProcessingSettings;
-  exportFormat: GrainExportFormat;
+  exportFormat: GrainOutputFormat;
 }
 
 /**

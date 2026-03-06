@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useColorExtractorState, useColorExtractorDispatch } from '../state/context';
-import type { PaletteExportFormat } from '../state/types';
+import type { PaletteOutputFormat } from '../state/types';
 import { DEFAULT_COLOR_COUNT } from '../state/defaults';
 
 const STORAGE_KEY = 'color-extractor-settings';
-const VALID_FORMATS: PaletteExportFormat[] = ['css', 'json', 'hex', 'tailwind'];
+const VALID_FORMATS: PaletteOutputFormat[] = ['css', 'json', 'hex', 'tailwind'];
 
 interface PersistedSettings {
   colorCount: number;
-  exportFormat: PaletteExportFormat;
+  exportFormat: PaletteOutputFormat;
 }
 
 export function useColorExtractorPersistence() {

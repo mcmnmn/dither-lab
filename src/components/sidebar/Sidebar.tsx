@@ -4,12 +4,11 @@ import { AlgorithmSelector } from './AlgorithmSelector';
 import { PaletteControls } from './PaletteControls';
 import { OutputSettings } from './OutputSettings';
 import { InputSection } from './InputSection';
-import { exportSingle } from '../../utils/export';
+import { exportSingle } from '../../utils/output';
 import { processImage } from '../../services/dither-engine';
 import { PALETTE_PRESETS } from '../../palette/presets';
 import { cropImageData } from '../../utils/crop';
 import { loadImageFile } from '../../utils/image-io';
-import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import type { BatchItem } from '../../state/types';
 
 export function Sidebar() {
@@ -28,17 +27,8 @@ export function Sidebar() {
     }
     const file = files[0];
     if (!file) return;
-    const mediaType = detectMediaType(file);
-    if (mediaType === 'video') {
-      const videoElement = await loadVideoFile(file);
-      dispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
-    } else if (mediaType === 'glb') {
-      const glbUrl = URL.createObjectURL(file);
-      dispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
-    } else {
-      const imageData = await loadImageFile(file);
-      dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
-    }
+    const imageData = await loadImageFile(file);
+    dispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
   }, [dispatch, state.mode]);
 
 

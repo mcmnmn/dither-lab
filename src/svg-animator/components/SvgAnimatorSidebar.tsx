@@ -1,7 +1,6 @@
 import { InputPanel } from './panels/InputPanel';
 import { ElementInspectorPanel } from './panels/ElementInspectorPanel';
 import { PresetPanel } from './panels/PresetPanel';
-import { ExportPanel } from './panels/ExportPanel';
 
 export function SvgAnimatorSidebar() {
   return (
@@ -9,7 +8,6 @@ export function SvgAnimatorSidebar() {
       <InputPanel />
       <ElementInspectorPanel />
       <PresetPanel />
-      <ExportPanel />
     </aside>
   );
 }

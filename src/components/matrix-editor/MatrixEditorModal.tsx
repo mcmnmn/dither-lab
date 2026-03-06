@@ -118,7 +118,7 @@ export function MatrixEditorModal({ isOpen, onClose, initialMatrix }: MatrixEdit
     input.click();
   }, []);
 
-  const handleExportFile = useCallback(() => {
+  const handleOutputFile = useCallback(() => {
     const json = JSON.stringify({ name, size, weights }, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -195,7 +195,7 @@ export function MatrixEditorModal({ isOpen, onClose, initialMatrix }: MatrixEdit
         {/* Grid */}
         <MatrixGrid size={size} weights={weights} onChange={setWeights} />
 
-        {/* Import/Export */}
+        {/* Import/Output */}
         <div className="mt-4 flex flex-wrap gap-2">
           <button onClick={handleCopyJson} className="border border-(--color-border) bg-(--color-bg) px-3 py-1.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">
             Copy JSON
@@ -206,8 +206,8 @@ export function MatrixEditorModal({ isOpen, onClose, initialMatrix }: MatrixEdit
           <button onClick={handleImportFile} className="border border-(--color-border) bg-(--color-bg) px-3 py-1.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">
             Import File
           </button>
-          <button onClick={handleExportFile} className="border border-(--color-border) bg-(--color-bg) px-3 py-1.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">
-            Export File
+          <button onClick={handleOutputFile} className="border border-(--color-border) bg-(--color-bg) px-3 py-1.5 text-xs text-(--color-text-secondary) hover:text-(--color-text) hover:bg-(--color-bg-tertiary)">
+            Output File
           </button>
         </div>
 

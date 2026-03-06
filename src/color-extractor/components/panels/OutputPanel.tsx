@@ -1,15 +1,15 @@
 import { useState, useMemo } from 'react';
 import { useColorExtractorState, useColorExtractorDispatch } from '../../state/context';
-import type { PaletteExportFormat, ExtractedColor } from '../../state/types';
+import type { PaletteOutputFormat, ExtractedColor } from '../../state/types';
 
-const FORMATS: { value: PaletteExportFormat; label: string }[] = [
+const FORMATS: { value: PaletteOutputFormat; label: string }[] = [
   { value: 'hex', label: 'HEX' },
   { value: 'css', label: 'CSS' },
   { value: 'json', label: 'JSON' },
   { value: 'tailwind', label: 'TW' },
 ];
 
-function formatPalette(colors: ExtractedColor[], format: PaletteExportFormat): string {
+function formatPalette(colors: ExtractedColor[], format: PaletteOutputFormat): string {
   switch (format) {
     case 'css':
       return colors.map((c, i) => `--color-${i + 1}: ${c.hex};`).join('\n');
@@ -25,7 +25,7 @@ function formatPalette(colors: ExtractedColor[], format: PaletteExportFormat): s
   }
 }
 
-export function ExportPanel() {
+export function OutputPanel() {
   const { colors, exportFormat } = useColorExtractorState();
   const dispatch = useColorExtractorDispatch();
   const [copied, setCopied] = useState(false);
@@ -40,7 +40,7 @@ export function ExportPanel() {
 
   return (
     <div className="retro-section">
-      <span className="retro-section-label">Export</span>
+      <span className="retro-section-label">Output</span>
       <div className="space-y-3">
         <div className="flex gap-1">
           {FORMATS.map(f => (

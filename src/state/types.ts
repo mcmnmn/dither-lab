@@ -3,10 +3,10 @@ import type { PaletteMode } from '../palette/types';
 
 export type ComparisonMode = 'slider' | 'side-by-side' | 'toggle';
 export type AppMode = 'single' | 'batch';
-export type ExportFormat = 'png' | 'jpg' | 'gif' | 'webp';
+export type OutputFormat = 'png' | 'jpg' | 'gif' | 'webp';
 export type ThemeId = 'butterlite' | 'noir' | 'vt320';
-export type ToolId = 'dither' | 'ascii' | 'halftone' | 'vhs' | 'color-extractor' | 'campaign-generator' | 'mesh-gradient' | 'svg-animator' | 'resources';
-export type SourceMediaType = 'image' | 'video' | 'glb';
+export type ToolId = 'dither' | 'ascii' | 'halftone' | 'vhs' | 'color-extractor' | 'campaign-generator' | 'mesh-gradient' | 'svg-animator' | 'resources' | 'graph-maker';
+export type SourceMediaType = 'image';
 export type CropAspectRatio = 'original' | '16:9' | '4:3' | '1:1' | '3:4' | '9:16';
 
 export interface BatchItem {
@@ -26,8 +26,6 @@ export interface AppState {
   // Source media
   sourceMediaType: SourceMediaType;
   sourceImage: ImageData | null;
-  sourceVideo: HTMLVideoElement | null;
-  sourceGlbUrl: string | null;
   sourceFile: File | null;
   fileName: string;
 
@@ -61,8 +59,8 @@ export interface AppState {
   batchProcessing: boolean;
   batchProgress: number;
 
-  // Export
-  exportFormat: ExportFormat;
+  // Output
+  exportFormat: OutputFormat;
   exportScale: number;
 
   // Theme
@@ -88,9 +86,6 @@ export interface SettingsSnapshot {
 
 export type AppAction =
   | { type: 'SET_SOURCE'; imageData: ImageData; file: File | null; fileName: string }
-  | { type: 'SET_VIDEO_SOURCE'; videoElement: HTMLVideoElement; file: File; fileName: string }
-  | { type: 'SET_GLB_SOURCE'; glbUrl: string; file: File; fileName: string }
-  | { type: 'SET_VIDEO_FRAME'; imageData: ImageData }
   | { type: 'SET_RESULT'; imageData: ImageData; duration: number }
   | { type: 'SET_PROCESSING'; processing: boolean }
   | { type: 'SET_ALGORITHM'; algorithmId: string }
@@ -107,7 +102,7 @@ export type AppAction =
   | { type: 'SET_PAN'; x: number; y: number }
   | { type: 'TOGGLE_PIXEL_GRID' }
   | { type: 'SET_MODE'; mode: AppMode }
-  | { type: 'SET_EXPORT_FORMAT'; format: ExportFormat }
+  | { type: 'SET_EXPORT_FORMAT'; format: OutputFormat }
   | { type: 'SET_EXPORT_SCALE'; scale: number }
   | { type: 'SET_THEME'; theme: ThemeId }
   | { type: 'UNDO' }

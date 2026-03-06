@@ -15,6 +15,8 @@ import { SvgAnimatorProvider } from '../../svg-animator/state/context';
 import { SvgAnimatorApp } from '../../svg-animator/components/SvgAnimatorApp';
 import { ResourcesProvider } from '../../resources/state/context';
 import { ResourcesApp } from '../../resources/components/ResourcesApp';
+import { GraphMakerProvider } from '../../graph-maker/state/context';
+import { GraphApp } from '../../graph-maker/components/GraphApp';
 import { FeedbackModal } from '../feedback/FeedbackModal';
 import type { ThemeId } from '../../state/types';
 import { TOOLS, getToolById, isEffectTool, toGrainEffectId } from '../../state/tools';
@@ -153,7 +155,16 @@ export function Layout() {
       </header>
 
       {/* Main content */}
-      {activeTool === 'resources' ? (
+      {activeTool === 'graph-maker' ? (
+        <GraphMakerProvider>
+          <GraphApp
+            isNarrow={isNarrow}
+            sidebarOpen={sidebarOpen}
+            onCloseSidebar={() => setSidebarOpen(false)}
+            toolSwitcher={toolSwitcher}
+          />
+        </GraphMakerProvider>
+      ) : activeTool === 'resources' ? (
         <ResourcesProvider>
           <ResourcesApp
             isNarrow={isNarrow}

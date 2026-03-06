@@ -5,10 +5,7 @@ import { useZoomPan } from '../../hooks/use-zoom-pan';
 import { isWebGPUSupported } from '../gpu/device';
 import { useGrainEngine } from '../hooks/use-grain-engine';
 import { DropZone } from '../../components/common/DropZone';
-import { VideoControls } from '../../components/common/VideoControls';
-import { GlbViewer } from '../../components/canvas/GlbViewer';
 import { loadImageFile } from '../../utils/image-io';
-import { detectMediaType, loadVideoFile } from '../../utils/media-io';
 import { CanvasToolbar } from '../../components/common/CanvasToolbar';
 import { cropImageData } from '../../utils/crop';
 
@@ -29,7 +26,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   const [renderToken, setRenderToken] = useState(0);
 
   // Initialize the GPU engine (only runs when canvas is in DOM and GPU is available)
-  useGrainEngine(gpuSupported ? canvasRef : { current: null }, appState.sourceImage, renderToken, appState.sourceVideo);
+  useGrainEngine(gpuSupported ? canvasRef : { current: null }, appState.sourceImage, renderToken);
 
   // Compute cropped dimensions for aspect-ratio fitting
   const croppedDims = useMemo(() => {
@@ -37,11 +34,8 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       const cropped = cropImageData(appState.sourceImage, appState.cropAspectRatio);
       return { width: cropped.width, height: cropped.height };
     }
-    if (appState.sourceVideo) {
-      return { width: appState.sourceVideo.videoWidth, height: appState.sourceVideo.videoHeight };
-    }
     return null;
-  }, [appState.sourceImage, appState.sourceVideo, appState.cropAspectRatio]);
+  }, [appState.sourceImage, appState.cropAspectRatio]);
 
   // Resize canvas — fit cropped image aspect ratio within container
   useEffect(() => {
@@ -57,16 +51,10 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       let fitH = ch;
 
       if (croppedDims) {
-        const containerAspect = cw / ch;
         const imageAspect = croppedDims.width / croppedDims.height;
-
-        if (imageAspect > containerAspect) {
-          fitW = cw;
-          fitH = cw / imageAspect;
-        } else {
-          fitH = ch;
-          fitW = ch * imageAspect;
-        }
+        // Always fill container width
+        fitW = cw;
+        fitH = cw / imageAspect;
       }
 
       const pw = Math.floor(fitW * devicePixelRatio);
@@ -92,7 +80,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
-        if (item.type.startsWith('image/') || item.type.startsWith('video/')) {
+        if (item.type.startsWith('image/')) {
           const file = item.getAsFile();
           if (file) handleFiles([file]);
           return;
@@ -106,17 +94,8 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
   const handleFiles = useCallback(async (files: File[]) => {
     const file = files[0];
     if (!file) return;
-    const mediaType = detectMediaType(file);
-    if (mediaType === 'video') {
-      const videoElement = await loadVideoFile(file);
-      appDispatch({ type: 'SET_VIDEO_SOURCE', videoElement, file, fileName: file.name });
-    } else if (mediaType === 'glb') {
-      const glbUrl = URL.createObjectURL(file);
-      appDispatch({ type: 'SET_GLB_SOURCE', glbUrl, file, fileName: file.name });
-    } else {
-      const imageData = await loadImageFile(file);
-      appDispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
-    }
+    const imageData = await loadImageFile(file);
+    appDispatch({ type: 'SET_SOURCE', imageData, file, fileName: file.name });
   }, [appDispatch]);
 
   // WebGPU not supported fallback
@@ -136,16 +115,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
     );
   }
 
-  const hasSource = appState.sourceImage || appState.sourceVideo || appState.sourceGlbUrl;
-
-  // GLB source — show 3D viewer (separate from GPU canvas)
-  if (appState.sourceMediaType === 'glb' && appState.sourceGlbUrl) {
-    return (
-      <div ref={containerRef} className="dot-grid relative h-full w-full overflow-hidden bg-(--color-bg)">
-        <GlbViewer glbUrl={appState.sourceGlbUrl} fileName={appState.fileName} />
-      </div>
-    );
-  }
+  const hasSource = !!appState.sourceImage;
 
   // Compute canvas style with zoom/pan
   const canvasStyle: React.CSSProperties | undefined = canvasSize ? {
@@ -173,11 +143,6 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
           style={canvasStyle}
         />
 
-        {/* Video controls overlay */}
-        {appState.sourceVideo && (
-          <VideoControls video={appState.sourceVideo} />
-        )}
-
         {/* Drop zone overlay when no source */}
         {!hasSource && (
           <DropZone onFiles={handleFiles} className="absolute inset-0 flex cursor-pointer items-center justify-center">
@@ -187,7 +152,7 @@ export function GrainCanvas({ canvasRef: externalCanvasRef }: GrainCanvasProps =
                 Drop a file here, click to browse, or paste from clipboard
               </p>
               <p className="mt-1 font-mono text-[10px] text-(--color-text-secondary)/60">
-                PNG, JPG, WebP, GIF, MP4, WebM, GLB
+                PNG, JPG, WebP, GIF
               </p>
             </div>
           </DropZone>

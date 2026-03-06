@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useMeshGradientState, useMeshGradientDispatch } from '../state/context';
 import { meshGradientInitialState } from '../state/defaults';
-import type { HarmonyRule, MeshExportFormat, MeshExportResolution } from '../state/types';
+import type { HarmonyRule, MeshOutputFormat, MeshOutputResolution } from '../state/types';
 
 const STORAGE_KEY = 'mesh-gradient-settings';
 
 const VALID_HARMONIES: HarmonyRule[] = ['analogous', 'complementary', 'split-complementary', 'triadic', 'tetradic', 'random'];
-const VALID_FORMATS: MeshExportFormat[] = ['png', 'jpg', 'svg', 'css'];
-const VALID_RESOLUTIONS: MeshExportResolution[] = [1024, 2048, 4096];
+const VALID_FORMATS: MeshOutputFormat[] = ['png', 'jpg', 'svg', 'css'];
+const VALID_RESOLUTIONS: MeshOutputResolution[] = [1024, 2048, 4096];
 
 export function useMeshGradientPersistence() {
   const state = useMeshGradientState();

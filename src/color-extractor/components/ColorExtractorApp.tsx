@@ -3,7 +3,7 @@ import { ColorExtractorCanvas } from './ColorExtractorCanvas';
 import { ColorExtractorSidebar } from './ColorExtractorSidebar';
 import { SettingsPanel } from './panels/SettingsPanel';
 import { PalettePanel } from './panels/PalettePanel';
-import { ExportPanel } from './panels/ExportPanel';
+import { OutputPanel } from './panels/OutputPanel';
 import { InputSection } from '../../components/sidebar/InputSection';
 import { useColorExtractorPersistence } from '../hooks/use-color-extractor-persistence';
 import { useColorExtractorDispatch } from '../state/context';
@@ -54,7 +54,7 @@ export function ColorExtractorApp({ isNarrow, sidebarOpen, onCloseSidebar, toolS
                 />
                 <SettingsPanel />
                 <PalettePanel />
-                <ExportPanel />
+                <OutputPanel />
               </div>
             </div>
           </>

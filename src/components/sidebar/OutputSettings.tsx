@@ -1,7 +1,7 @@
 import { useAppState, useAppDispatch } from '../../state/app-context';
 import { ALGORITHMS } from '../../algorithms';
 import { Tooltip } from '../common/Tooltip';
-import type { ExportFormat } from '../../state/types';
+import type { OutputFormat } from '../../state/types';
 
 export function OutputSettings() {
   const { exportFormat, exportScale, algorithmId, strength, threshold } = useAppState();
@@ -59,7 +59,7 @@ export function OutputSettings() {
             <span className="text-xs text-(--color-text-secondary)">Format</span>
           </Tooltip>
           <div className="flex gap-0 border border-(--color-border)">
-            {(['png', 'jpg', 'webp', 'gif'] as ExportFormat[]).map(fmt => (
+            {(['png', 'jpg', 'webp', 'gif'] as OutputFormat[]).map(fmt => (
               <button
                 key={fmt}
                 onClick={() => dispatch({ type: 'SET_EXPORT_FORMAT', format: fmt })}
