@@ -80,7 +80,8 @@ export function ScreenshotFramerCanvas() {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       const dpr = window.devicePixelRatio || 1;
-      const size = PREVIEW_SIZE * dpr;
+      const cssSize = canvas.offsetWidth || PREVIEW_SIZE;
+      const size = Math.round(cssSize * dpr);
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext('2d')!;
