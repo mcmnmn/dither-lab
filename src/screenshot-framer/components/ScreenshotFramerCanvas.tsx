@@ -19,7 +19,7 @@ export function ScreenshotFramerCanvas() {
   useEffect(() => {
     if (state.screenshotSrc) return;
     fetch(`${import.meta.env.BASE_URL}sample.jpg`)
-      .then(r => r.blob())
+      .then(r => { if (!r.ok) throw new Error('fetch failed'); return r.blob(); })
       .then(blob => {
         const reader = new FileReader();
         reader.onload = () => {
