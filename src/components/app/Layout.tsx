@@ -17,6 +17,8 @@ import { ResourcesProvider } from '../../resources/state/context';
 import { ResourcesApp } from '../../resources/components/ResourcesApp';
 import { GraphMakerProvider } from '../../graph-maker/state/context';
 import { GraphApp } from '../../graph-maker/components/GraphApp';
+import { ScreenshotFramerProvider } from '../../screenshot-framer/state/context';
+import { ScreenshotFramerApp } from '../../screenshot-framer/components/ScreenshotFramerApp';
 import { FeedbackModal } from '../feedback/FeedbackModal';
 import type { ThemeId } from '../../state/types';
 import { TOOLS, getToolById, isEffectTool, toGrainEffectId } from '../../state/tools';
@@ -155,7 +157,16 @@ export function Layout() {
       </header>
 
       {/* Main content */}
-      {activeTool === 'graph-maker' ? (
+      {activeTool === 'screenshot-framer' ? (
+        <ScreenshotFramerProvider>
+          <ScreenshotFramerApp
+            isNarrow={isNarrow}
+            sidebarOpen={sidebarOpen}
+            onCloseSidebar={() => setSidebarOpen(false)}
+            toolSwitcher={toolSwitcher}
+          />
+        </ScreenshotFramerProvider>
+      ) : activeTool === 'graph-maker' ? (
         <GraphMakerProvider>
           <GraphApp
             isNarrow={isNarrow}

@@ -10,6 +10,18 @@ export interface MeshPreset {
 
 export const MESH_PRESETS: MeshPreset[] = [
   {
+    id: 'givebutter',
+    name: 'Givebutter',
+    nodes: [
+      { id: '1', x: 0.25, y: 0.2, color: '#FFBF02' },
+      { id: '2', x: 0.8, y: 0.15, color: '#F6F3EB' },
+      { id: '3', x: 0.3, y: 0.75, color: '#E6AC02' },
+      { id: '4', x: 0.75, y: 0.7, color: '#FFD966' },
+    ],
+    bgColor: '#1B1B1B',
+    effects: { intensity: 75, smoothness: 75, blendMode: 'screen' },
+  },
+  {
     id: 'sunset-glow',
     name: 'Sunset Glow',
     nodes: [

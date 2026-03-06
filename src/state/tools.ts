@@ -16,7 +16,8 @@ export const TOOLS: ToolDefinition[] = [
   { id: 'color-extractor', label: 'PALETTE',  shortLabel: 'Palette',    available: true },
   { id: 'mesh-gradient', label: 'MESH',       shortLabel: 'Mesh',       available: true },
   { id: 'campaign-generator', label: 'COPYGEN',  shortLabel: 'CopyGen',  available: false },
-  { id: 'svg-animator', label: 'SVG MOTION', shortLabel: 'SVG Motion', available: true },
+  { id: 'svg-animator', label: 'SVGMOTION',  shortLabel: 'SVGMotion',  available: true },
+  { id: 'screenshot-framer', label: 'IMGFRAME', shortLabel: 'ImgFrame', available: true },
   { id: 'graph-maker', label: 'GRAPHS', shortLabel: 'Graphs', available: true },
   { id: 'resources', label: 'RESOURCES', shortLabel: 'Resources', available: true },
 ];
