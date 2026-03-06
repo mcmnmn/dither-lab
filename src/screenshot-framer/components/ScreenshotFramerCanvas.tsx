@@ -15,6 +15,21 @@ export function ScreenshotFramerCanvas() {
   const rafRef = useRef<number>(0);
   const [loaded, setLoaded] = useState(0);
 
+  // Load sample image on mount if no screenshot
+  useEffect(() => {
+    if (state.screenshotSrc) return;
+    fetch(`${import.meta.env.BASE_URL}sample.jpg`)
+      .then(r => r.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          dispatch({ type: 'SF_SET_SCREENSHOT', src: reader.result as string, fileName: 'sample.jpg' });
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Load screenshot image
   useEffect(() => {
     if (!state.screenshotSrc) {
@@ -64,10 +79,12 @@ export function ScreenshotFramerCanvas() {
 
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
-      canvas.width = PREVIEW_SIZE;
-      canvas.height = PREVIEW_SIZE;
+      const dpr = window.devicePixelRatio || 1;
+      const size = PREVIEW_SIZE * dpr;
+      canvas.width = size;
+      canvas.height = size;
       const ctx = canvas.getContext('2d')!;
-      renderFrameSync(ctx, PREVIEW_SIZE, state, screenshotRef.current, logoRef.current, patternRef.current);
+      renderFrameSync(ctx, size, state, screenshotRef.current, logoRef.current, patternRef.current);
     });
 
     return () => cancelAnimationFrame(rafRef.current);
