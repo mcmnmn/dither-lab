@@ -10,11 +10,11 @@ import type {
 } from './types';
 
 export const DEFAULT_ASCII: AsciiSettings = {
-  scale: 2,
-  spacing: 0,
+  scale: 12,
+  spacing: 6.0,
   outputWidth: 0,
-  charSet: 'standard',
-  brightness: 0,
+  charSet: 'symbols',
+  brightness: -2,
   contrast: 0,
   saturation: 0,
   hueRotation: 0,
@@ -23,18 +23,18 @@ export const DEFAULT_ASCII: AsciiSettings = {
   colorMode: 'original',
   fgColor: '#00ff00',
   bgColor: '#000000',
-  intensity: 1.0,
+  intensity: 1.9,
 };
 
 export const DEFAULT_HALFTONE: HalftoneSettings = {
   shape: 'circle',
-  dotScale: 1.6,
-  spacing: 5,
-  angle: 45,
+  dotScale: 9.9,
+  spacing: 2,
+  angle: 100,
   invert: false,
-  brightness: 21,
+  brightness: 27,
   contrast: 26,
-  colorMode: 'original',
+  colorMode: 'mono',
 };
 
 export const DEFAULT_NOISE_FIELD: NoiseFieldSettings = {
@@ -87,8 +87,8 @@ export const DEFAULT_PROCESSING: ProcessingSettings = {
 
 export const DEFAULT_POST_PROCESSING: PostProcessingSettings = {
   bloom: { enabled: false, threshold: 0.4, intensity: 1.2, radius: 15 },
-  grain: { enabled: false, intensity: 25, size: 1, speed: 80 },
-  chromatic: { enabled: false, offset: 6 },
+  grain: { enabled: true, intensity: 23, size: 2.5, speed: 80 },
+  chromatic: { enabled: false, offset: 13 },
   scanlines: { enabled: false, opacity: 0.1, spacing: 2 },
   vignette: { enabled: false, intensity: 0.4, radius: 0.5 },
   crtCurve: false,
